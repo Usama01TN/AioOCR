@@ -1,0 +1,1 @@
+"""OcrRoute Desktop (PyQt5)."""

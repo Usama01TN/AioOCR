@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Settings</h1>
+<div class="card">
+  <dl class="kv">
+    <dt>Home</dt><dd><code>{{ settings.home }}</code></dd>
+    <dt>API port</dt><dd>{{ settings.port }}</dd>
+    <dt>Panel port (split)</dt><dd>{{ settings.panel_port }}</dd>
+    <dt>Privacy mode</dt><dd>{{ settings.privacy_mode }}</dd>
+    <dt>Cache TTL</dt><dd>{{ settings.cache_ttl_seconds }}s</dd>
+    <dt>Log retention</dt><dd>{{ settings.log_retention_days }} days</dd>
+  </dl>
+</div>
+{% endblock %}

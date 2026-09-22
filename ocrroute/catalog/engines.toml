@@ -1,0 +1,474 @@
+# Curated metadata overlay for OcrRoute engines.
+# Missing entries fall back to introspected defaults.
+
+[Tesseract]
+name = "Tesseract"
+vendor = "Google"
+kind = "local"
+homepage = "https://github.com/tesseract-ocr/tesseract"
+requires_key = false
+supports_pdf = true
+supports_handwriting = false
+supports_tables = false
+supports_overlay = true
+cost_model = "local"
+unit_price = 0.0
+quality_score = 0.72
+install_hint = "pip install pytesseract && system package tesseract-ocr"
+languages = ["en", "fr", "de", "es", "it", "pt", "nl", "ar", "ru", "zh", "ja"]
+
+[RapidOcr]
+name = "RapidOCR"
+vendor = "RapidAI"
+kind = "local"
+requires_key = false
+supports_pdf = true
+supports_overlay = true
+cost_model = "local"
+unit_price = 0.0
+quality_score = 0.78
+install_hint = "pip install rapidocr-onnxruntime"
+
+[PaddleOcr]
+name = "PaddleOCR"
+vendor = "Baidu"
+kind = "local"
+requires_key = false
+supports_pdf = true
+supports_tables = true
+supports_overlay = true
+cost_model = "local"
+unit_price = 0.0
+quality_score = 0.80
+install_hint = "pip install paddleocr paddlepaddle"
+
+[EasyOCR]
+name = "EasyOCR"
+vendor = "Jaided AI"
+kind = "local"
+requires_key = false
+supports_overlay = true
+cost_model = "local"
+unit_price = 0.0
+quality_score = 0.75
+install_hint = "pip install easyocr"
+
+[OcrSpace]
+name = "OCR.Space"
+vendor = "OCR.Space"
+kind = "api"
+homepage = "https://ocr.space/ocrapi"
+requires_key = true
+supports_pdf = true
+supports_tables = true
+supports_overlay = true
+cost_model = "per_request"
+unit_price = 0.1
+quality_score = 0.70
+key_url = "https://ocr.space/ocrapi/freekey"
+
+[GeminiOcr]
+name = "Gemini OCR"
+vendor = "Google"
+kind = "api"
+requires_key = true
+supports_pdf = true
+supports_handwriting = true
+supports_tables = true
+supports_overlay = false
+cost_model = "per_token"
+unit_price = 0.05
+quality_score = 0.90
+
+[ChatGptOcr]
+name = "ChatGPT OCR"
+vendor = "OpenAI"
+kind = "api"
+requires_key = true
+supports_pdf = true
+supports_handwriting = true
+supports_tables = true
+cost_model = "per_token"
+unit_price = 0.08
+quality_score = 0.88
+
+[ClaudeOcr]
+name = "Claude OCR"
+vendor = "Anthropic"
+kind = "api"
+requires_key = true
+supports_pdf = true
+supports_handwriting = true
+supports_tables = true
+cost_model = "per_token"
+unit_price = 0.10
+quality_score = 0.89
+
+[MistralOcr]
+name = "Mistral OCR"
+vendor = "Mistral"
+kind = "api"
+requires_key = true
+supports_pdf = true
+supports_tables = true
+cost_model = "per_page"
+unit_price = 0.05
+quality_score = 0.85
+
+[GoogleOcr]
+name = "Google Cloud Vision"
+vendor = "Google"
+kind = "api"
+requires_key = true
+supports_pdf = true
+supports_handwriting = true
+supports_overlay = true
+cost_model = "per_page"
+unit_price = 0.15
+quality_score = 0.87
+
+[BaiduOcr]
+name = "Baidu OCR"
+vendor = "Baidu"
+kind = "api"
+requires_key = true
+supports_overlay = true
+cost_model = "per_request"
+unit_price = 0.05
+quality_score = 0.80
+
+[GrokOcr]
+name = "Grok OCR"
+vendor = "xAI"
+kind = "api"
+requires_key = true
+supports_handwriting = true
+cost_model = "per_token"
+unit_price = 0.06
+quality_score = 0.82
+
+[GroqOcr]
+name = "Groq OCR"
+vendor = "Groq"
+kind = "api"
+requires_key = true
+cost_model = "per_token"
+unit_price = 0.03
+quality_score = 0.80
+
+[OpenRouterOcr]
+name = "OpenRouter OCR"
+vendor = "OpenRouter"
+kind = "api"
+requires_key = true
+cost_model = "per_token"
+unit_price = 0.05
+quality_score = 0.82
+
+[PerplexityOcr]
+name = "Perplexity OCR"
+vendor = "Perplexity"
+kind = "api"
+requires_key = true
+cost_model = "per_token"
+unit_price = 0.05
+quality_score = 0.80
+
+[QwenCloudOcr]
+name = "Qwen Cloud OCR"
+vendor = "Alibaba"
+kind = "api"
+requires_key = true
+supports_tables = true
+cost_model = "per_token"
+unit_price = 0.04
+quality_score = 0.86
+
+[SiliconFlowOcr]
+name = "SiliconFlow OCR"
+vendor = "SiliconFlow"
+kind = "api"
+requires_key = true
+cost_model = "per_token"
+unit_price = 0.03
+quality_score = 0.80
+
+[AimlApiOcr]
+name = "AIML API OCR"
+vendor = "AIMLAPI"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.05
+quality_score = 0.78
+
+[ApiNinjasOcr]
+name = "API Ninjas OCR"
+vendor = "API Ninjas"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.02
+quality_score = 0.65
+
+[EasyOcrOrg]
+name = "EasyOCR.org"
+vendor = "EasyOCR"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.02
+quality_score = 0.70
+
+[NanonetsOcr]
+name = "Nanonets OCR"
+vendor = "Nanonets"
+kind = "api"
+requires_key = true
+supports_tables = true
+cost_model = "per_page"
+unit_price = 0.10
+quality_score = 0.84
+
+[NemotronOcr]
+name = "Nemotron OCR"
+vendor = "NVIDIA"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.04
+quality_score = 0.80
+
+[NvidiaPaddleOcr]
+name = "NVIDIA PaddleOCR"
+vendor = "NVIDIA"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.03
+quality_score = 0.78
+
+[Api4AiOcr]
+name = "API4AI OCR"
+vendor = "API4AI"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.03
+quality_score = 0.70
+
+[RapidApiOcr]
+name = "RapidAPI OCR"
+vendor = "RapidAPI"
+kind = "api"
+requires_key = true
+cost_model = "per_request"
+unit_price = 0.03
+quality_score = 0.68
+
+[ScanDocFlow]
+name = "ScanDocFlow"
+vendor = "ScanDocFlow"
+kind = "api"
+requires_key = true
+supports_pdf = true
+cost_model = "per_page"
+unit_price = 0.08
+quality_score = 0.75
+
+[SuryaOcr]
+name = "Surya OCR"
+vendor = "VikParuchuri"
+kind = "local"
+requires_key = false
+supports_overlay = true
+cost_model = "local"
+quality_score = 0.82
+install_hint = "pip install surya-ocr"
+
+[TrOcr]
+name = "TrOCR"
+vendor = "Microsoft"
+kind = "local"
+requires_key = false
+cost_model = "local"
+quality_score = 0.74
+install_hint = "pip install transformers torch"
+
+[TrOcrHandwritten]
+name = "TrOCR Handwritten"
+vendor = "Microsoft"
+kind = "local"
+requires_key = false
+supports_handwriting = true
+cost_model = "local"
+quality_score = 0.76
+install_hint = "pip install transformers torch"
+
+[CalamariOcr]
+name = "Calamari OCR"
+vendor = "Calamari"
+kind = "local"
+cost_model = "local"
+quality_score = 0.70
+install_hint = "pip install calamari-ocr"
+
+[KerasOcr]
+name = "Keras OCR"
+vendor = "Keras-OCR"
+kind = "local"
+cost_model = "local"
+quality_score = 0.68
+install_hint = "pip install keras-ocr"
+
+[GotOcr]
+name = "GOT-OCR"
+vendor = "StepFun"
+kind = "local"
+supports_pdf = true
+cost_model = "local"
+quality_score = 0.88
+install_hint = "pip install transformers torch"
+
+[DeepSeekOcr]
+name = "DeepSeek OCR"
+vendor = "DeepSeek"
+kind = "local"
+cost_model = "local"
+quality_score = 0.88
+install_hint = "pip install transformers torch"
+
+[QwenVlOcr]
+name = "Qwen-VL OCR"
+vendor = "Alibaba"
+kind = "local"
+supports_tables = true
+cost_model = "local"
+quality_score = 0.87
+install_hint = "pip install transformers torch"
+
+[Qwen2Vl2bOcr]
+name = "Qwen2-VL 2B OCR"
+vendor = "Alibaba"
+kind = "local"
+cost_model = "local"
+quality_score = 0.80
+install_hint = "pip install transformers torch"
+
+[NougatOcr]
+name = "Nougat OCR"
+vendor = "Meta"
+kind = "local"
+supports_pdf = true
+cost_model = "local"
+quality_score = 0.85
+install_hint = "pip install nougat-ocr"
+
+[NougatLib]
+name = "Nougat (lib)"
+vendor = "Meta"
+kind = "local"
+supports_pdf = true
+cost_model = "local"
+quality_score = 0.85
+
+[MmOcr]
+name = "MMOCR"
+vendor = "OpenMMLab"
+kind = "local"
+cost_model = "local"
+quality_score = 0.75
+install_hint = "pip install mmocr"
+
+[OpenOcr]
+name = "OpenOCR"
+vendor = "OpenOCR"
+kind = "local"
+cost_model = "local"
+quality_score = 0.76
+
+[PytorchOcr]
+name = "PyTorch OCR"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.70
+
+[OlmOcrLib]
+name = "olmOCR"
+vendor = "AllenAI"
+kind = "local"
+supports_pdf = true
+cost_model = "local"
+quality_score = 0.86
+
+[ChandraOcr]
+name = "Chandra OCR"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.78
+
+[DotsOcr]
+name = "Dots OCR"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.78
+
+[GlmOcrHF]
+name = "GLM OCR (HF)"
+vendor = "Zhipu"
+kind = "local"
+cost_model = "local"
+quality_score = 0.84
+
+[HunyuanOcrHf]
+name = "Hunyuan OCR"
+vendor = "Tencent"
+kind = "local"
+cost_model = "local"
+quality_score = 0.84
+
+[InfinityParser]
+name = "Infinity Parser"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.80
+
+[MonkeyOcrHf]
+name = "MonkeyOCR (HF)"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.82
+
+[MonkeyOcrPro]
+name = "MonkeyOCR Pro"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.84
+
+[NanonetsOcr2]
+name = "Nanonets OCR2"
+vendor = "Nanonets"
+kind = "local"
+supports_tables = true
+cost_model = "local"
+quality_score = 0.86
+
+[QianfanOcr]
+name = "Qianfan OCR"
+vendor = "Baidu"
+kind = "local"
+cost_model = "local"
+quality_score = 0.82
+
+[UnlimitedOcr]
+name = "Unlimited OCR"
+vendor = "Community"
+kind = "local"
+cost_model = "local"
+quality_score = 0.80

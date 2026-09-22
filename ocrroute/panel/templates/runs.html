@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Runs &amp; Logs</h1>
+{% if runs %}
+<table class="table">
+  <thead><tr><th>ID</th><th>Status</th><th>Engine</th><th>Chars</th><th>Duration</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for r in runs %}
+  <tr>
+    <td><a href="/v1/runs/{{ r.id }}">{{ r.id[:10] }}…</a></td>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+    <td>{{ r.requested_engine or '—' }}</td>
+    <td>{{ r.chars }}</td>
+    <td>{{ r.duration_ms }} ms</td>
+    <td>{{ r.created_at }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No runs recorded yet.</p>
+{% endif %}
+{% endblock %}

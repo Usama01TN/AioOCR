@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ title }} · OcrRoute</title>
+  <link rel="stylesheet" href="/panel/static/css/app.css"/>
+  <script defer src="/panel/static/js/alpine.min.js"></script>
+  <script src="/panel/static/js/htmx.min.js"></script>
+  <script src="/panel/static/js/chart.umd.min.js"></script>
+</head>
+<body class="app" x-data="{ dark: localStorage.getItem('ocrroute-theme')==='dark', cmd:false }"
+      :class="dark ? 'theme-dark' : 'theme-light'"
+      @keydown.window.ctrl.k.prevent="cmd=true" @keydown.window.meta.k.prevent="cmd=true">
+<aside class="sidebar" role="navigation" aria-label="Main">
+  <div class="brand"><span class="logo">OR</span><strong>OcrRoute</strong></div>
+  <nav>
+    <a href="/panel/" class="{% if title=='Overview' %}active{% endif %}">Overview</a>
+    <a href="/panel/engines" class="{% if title=='Engines' %}active{% endif %}">Engines</a>
+    <a href="/panel/providers" class="{% if title=='Providers' %}active{% endif %}">Providers</a>
+    <a href="/panel/routes" class="{% if title=='Routes' %}active{% endif %}">Routes</a>
+    <a href="/panel/playground" class="{% if title=='Playground' %}active{% endif %}">Playground</a>
+    <a href="/panel/runs" class="{% if title=='Runs' %}active{% endif %}">Runs</a>
+    <a href="/panel/usage" class="{% if title=='Usage & Cost' %}active{% endif %}">Usage</a>
+    <a href="/panel/keys" class="{% if title=='API Keys' %}active{% endif %}">Keys</a>
+    <a href="/panel/batch" class="{% if title=='Batch' %}active{% endif %}">Batch</a>
+    <a href="/panel/tools" class="{% if title=='Tools' %}active{% endif %}">Tools</a>
+    <a href="/panel/settings" class="{% if title=='Settings' %}active{% endif %}">Settings</a>
+    <a href="/panel/doctor" class="{% if title=='Doctor' %}active{% endif %}">Doctor</a>
+  </nav>
+  <div class="sidebar-foot">
+    <span class="pill">v{{ version }}</span>
+  </div>
+</aside>
+<div class="main">
+  <header class="topbar">
+    <input type="search" id="global-search" placeholder="Search… (/)" aria-label="Global search"
+           @keydown.slash.window.prevent="$el.focus()"/>
+    <div class="topbar-right">
+      <span class="status-pill" id="server-status">live</span>
+      <button type="button" class="btn ghost" @click="dark=!dark; localStorage.setItem('ocrroute-theme', dark?'dark':'light')"
+              aria-label="Toggle theme">Theme</button>
+      {% if user %}<span class="muted">{{ user.username }}</span>
+      <a class="btn ghost" href="/panel/logout">Logout</a>{% else %}
+      <a class="btn ghost" href="/panel/login">Login</a>{% endif %}
+    </div>
+  </header>
+  <main class="content" id="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="/panel/static/js/app.js"></script>
+</body>
+</html>

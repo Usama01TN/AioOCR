@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">🧰</div>
+  <h1>Tools</h1>
+  <p>No tools are installed. This section is reserved for future post-processing extensions.</p>
+  <button class="btn" disabled title="Tools are reserved for future use">Add tool</button>
+  <p class="muted"><a href="/v1/tools">API</a> · see docs/TOOLS.md</p>
+</div>
+{% endblock %}

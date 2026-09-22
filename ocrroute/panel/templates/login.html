@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login · OcrRoute</title>
+  <link rel="stylesheet" href="/panel/static/css/app.css"/>
+</head>
+<body class="login-page">
+<form class="card login-card" method="post" action="/panel/login">
+  <h1>OcrRoute</h1>
+  <p class="muted">Sign in to the control panel</p>
+  <label>Username <input name="username" required autofocus/></label>
+  <label>Password <input name="password" type="password" required/></label>
+  <button class="btn primary" type="submit">Sign in</button>
+  <p class="muted">First login creates the admin user.</p>
+</form>
+</body>
+</html>

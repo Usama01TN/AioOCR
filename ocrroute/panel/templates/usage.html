@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Usage &amp; Cost</h1>
+<p class="muted">Costs are <em>estimates</em> based on operator-entered unit prices.</p>
+<div class="card"><canvas id="usage-chart" height="120"></canvas></div>
+<p class="empty" id="usage-empty">No usage data yet.</p>
+<script>
+fetch('/v1/stats/summary').then(r=>r.json()).then(s=>{
+  if(!s.runs_total){return;}
+  document.getElementById('usage-empty').style.display='none';
+  const ctx=document.getElementById('usage-chart');
+  if(window.Chart){new Chart(ctx,{type:'doughnut',data:{labels:['Succeeded','Failed'],datasets:[{data:[s.runs_succeeded,s.runs_failed]}]}});}
+});
+</script>
+{% endblock %}

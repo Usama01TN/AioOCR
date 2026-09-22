@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Engines</h1>
+<p class="muted">{{ engines|length }} engines discovered from the AioOCR plugin tree.</p>
+<div class="card-grid">
+{% for e in engines %}
+  <div class="card engine {% if not e.available %}dim{% endif %}">
+    <div class="row">
+      <strong>{{ e.name }}</strong>
+      <span class="badge {{ e.kind }}">{{ e.kind }}</span>
+    </div>
+    <div class="muted">{{ e.vendor or '—' }} · {{ e.cost_model }}</div>
+    {% if e.available %}
+      <span class="badge ok">available</span>
+    {% else %}
+      <span class="badge err">unavailable</span>
+      {% if e.import_error %}<pre class="error-box">{{ e.import_error }}</pre>{% endif %}
+      {% if e.install_hint %}<code class="hint">{{ e.install_hint }}</code>{% endif %}
+    {% endif %}
+    <div class="caps">
+      {% if e.supports_pdf %}<span class="chip">PDF</span>{% endif %}
+      {% if e.supports_handwriting %}<span class="chip">HW</span>{% endif %}
+      {% if e.supports_tables %}<span class="chip">Tables</span>{% endif %}
+      {% if e.supports_overlay %}<span class="chip">Overlay</span>{% endif %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

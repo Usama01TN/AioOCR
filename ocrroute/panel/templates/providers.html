@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Providers &amp; Credentials</h1>
+<p class="muted">A provider is a usable configuration of an engine (keys, endpoint, proxy, model).</p>
+{% if providers %}
+<table class="table">
+  <thead><tr><th>Label</th><th>Engine</th><th>Health</th><th>Enabled</th></tr></thead>
+  <tbody>
+  {% for p in providers %}
+    <tr>
+      <td>{{ p.label }}</td>
+      <td>{{ p.engine_id }}</td>
+      <td><span class="badge">{{ p.health }}</span></td>
+      <td>{{ p.enabled }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No providers configured. Use <code>ocrroute setup</code> or <code>POST /v1/providers</code>.
+Custom endpoint field accepts any OpenAI-compatible base URL you operate.</p>
+{% endif %}
+{% endblock %}

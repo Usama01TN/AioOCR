@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Routes</h1>
+<p class="muted">A Route is a named ordered list of provider entries plus a Strategy.</p>
+{% if routes %}
+<table class="table">
+  <thead><tr><th>Name</th><th>Strategy</th><th>Default</th><th>Enabled</th></tr></thead>
+  <tbody>
+  {% for r in routes %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td>{{ r.strategy }}</td>
+      <td>{% if r.is_default %}★{% endif %}</td>
+      <td>{{ r.enabled }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No routes yet. The built-in <code>auto</code> strategy is used when none is configured.</p>
+{% endif %}
+{% endblock %}
