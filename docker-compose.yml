@@ -1,0 +1,16 @@
+services:
+  ocrroute:
+    build: .
+    ports:
+      - "20256:20256"
+    environment:
+      OCRROUTE_HOME: /data
+      OCRROUTE_HOST: 0.0.0.0
+      OCRROUTE_PORT: 20256
+      OCRROUTE_LOG_JSON: "true"
+    volumes:
+      - ocrroute-data:/data
+    restart: unless-stopped
+
+volumes:
+  ocrroute-data:

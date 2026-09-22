@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ t('routes.title') }}</h1>
+    <p class="lede">{{ t('routes.subtitle') }}</p>
+  </div>
+</div>
+{% if routes %}
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ t('common.name') }}</th>
+          <th>{{ t('common.strategy') }}</th>
+          <th>{{ t('common.default') }}</th>
+          <th>{{ t('common.enabled') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in routes %}
+        <tr>
+          <td><strong>{{ r.name }}</strong></td>
+          <td><span class="badge">{{ r.strategy }}</span></td>
+          <td>{% if r.is_default %}★ {{ t('common.yes') }}{% else %}{{ t('common.no') }}{% endif %}</td>
+          <td>{{ t('common.yes') if r.enabled else t('common.no') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">↗</div>
+  <p>{{ t('routes.empty') }}</p>
+</div>
+{% endif %}
+{% endblock %}

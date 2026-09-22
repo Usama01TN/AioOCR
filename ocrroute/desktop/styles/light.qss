@@ -1,0 +1,27 @@
+QMainWindow, QWidget {
+  background: #f4f6f8;
+  color: #1a1d23;
+  font-size: 13px;
+}
+QListWidget {
+  background: #111827;
+  color: #e5e7eb;
+  border: none;
+  padding: 8px;
+}
+QListWidget::item { padding: 8px; border-radius: 6px; }
+QListWidget::item:selected { background: #2563eb; }
+QPushButton {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+QPushButton:disabled { background: #9ca3af; }
+QPlainTextEdit {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+}

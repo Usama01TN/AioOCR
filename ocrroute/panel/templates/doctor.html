@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ t('doctor.title') }}</h1>
+  </div>
+  <button class="btn primary" type="button" onclick="copyReport()">{{ t('doctor.copy') }}</button>
+</div>
+<div class="card">
+  <dl class="kv">
+    <dt>{{ t('settings.home') }}</dt><dd><code>{{ settings.home }}</code></dd>
+    <dt>DB</dt><dd><code>{{ settings.db_path }}</code></dd>
+    <dt>{{ t('nav.engines') }}</dt>
+    <dd>{{ t('doctor.engines_line', total=engines|length, available=available) }}</dd>
+  </dl>
+</div>
+<pre id="report" class="code" hidden></pre>
+<script>
+async function copyReport(){
+  var d = await fetch('/v1/doctor').then(function(r){ return r.json(); });
+  var md = '```json\n' + JSON.stringify(d, null, 2) + '\n```';
+  var el = document.getElementById('report');
+  el.hidden = false;
+  el.textContent = md;
+  if (navigator.clipboard) navigator.clipboard.writeText(md);
+}
+</script>
+{% endblock %}

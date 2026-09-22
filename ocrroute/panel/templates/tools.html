@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">🧰</div>
+  <h1>{{ t('tools.title') }}</h1>
+  <p>{{ t('tools.empty') }}</p>
+  <button class="btn" disabled title="{{ t('tools.add_disabled') }}">{{ t('tools.add') }}</button>
+  <p class="muted" style="margin-top:1rem"><a href="/v1/tools">API</a> · {{ t('common.see_docs') }}: docs/TOOLS.md</p>
+</div>
+{% endblock %}

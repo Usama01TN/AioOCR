@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ t('keys.title') }}</h1>
+    <p class="lede">{{ t('keys.subtitle') }}</p>
+  </div>
+</div>
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">▤</div>
+  <p>{{ t('keys.empty') }}</p>
+</div>
+{% endblock %}

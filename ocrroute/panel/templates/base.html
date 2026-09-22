@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}" dir="{{ dir }}" data-theme="{{ theme }}">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <title>{{ title }} · {{ t('app.name') }}</title>
+  <link rel="stylesheet" href="/panel/static/css/app.css"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ocrroute-theme');
+        if (t === 'light' || t === 'dark' || t === 'system') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script defer src="/panel/static/js/alpine.min.js"></script>
+  <script src="/panel/static/js/htmx.min.js"></script>
+  <script src="/panel/static/js/chart.umd.min.js"></script>
+</head>
+<body class="app"
+      x-data="{ navOpen: false }"
+      :class="navOpen ? 'nav-open' : ''">
+<aside class="sidebar" role="navigation" aria-label="Main">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">OR</span>
+    <div class="brand-text">
+      <strong>{{ t('app.name') }}</strong>
+      <span title="{{ tagline }}">{{ tagline }}</span>
+    </div>
+  </div>
+  <div class="nav-section">Menu</div>
+  <nav>
+    {% for item in nav %}
+    <a href="{{ item.href }}" class="{{ item.active }}">
+      <span class="nav-ico" aria-hidden="true">{{ item.icon }}</span>
+      <span>{{ item.label }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+  <div class="sidebar-foot">
+    <span class="pill">v{{ version }}</span>
+    <a class="pill" href="/v1/docs" style="color:inherit;text-decoration:none">{{ t('common.docs') }}</a>
+  </div>
+</aside>
+<div class="nav-backdrop" @click="navOpen=false" aria-hidden="true"></div>
+<div class="main">
+  <header class="topbar">
+    <button type="button" class="menu-toggle" @click="navOpen=!navOpen" aria-label="Menu">☰</button>
+    <input type="search" id="global-search" placeholder="{{ t('topbar.search') }}"
+           aria-label="{{ t('topbar.search') }}"
+           @keydown.slash.window.prevent="$el.focus()"/>
+    <div class="topbar-right">
+      <span class="status-pill" id="server-status" data-live="{{ t('topbar.status.live') }}"
+            data-offline="{{ t('topbar.status.offline') }}">{{ t('topbar.status.live') }}</span>
+
+      <label class="sr-only" for="theme-select">{{ t('topbar.theme') }}</label>
+      <select id="theme-select" class="theme-select" aria-label="{{ t('topbar.theme') }}"
+              onchange="OcrRouteUI.setTheme(this.value)">
+        <option value="system" {% if theme=='system' %}selected{% endif %}>{{ t('topbar.theme.system') }}</option>
+        <option value="light" {% if theme=='light' %}selected{% endif %}>{{ t('topbar.theme.light') }}</option>
+        <option value="dark" {% if theme=='dark' %}selected{% endif %}>{{ t('topbar.theme.dark') }}</option>
+      </select>
+
+      <label class="sr-only" for="lang-select">{{ t('topbar.language') }}</label>
+      <select id="lang-select" class="lang-select" aria-label="{{ t('topbar.language') }}"
+              onchange="OcrRouteUI.setLang(this.value)">
+        {% for code, meta in locales.items() %}
+        <option value="{{ code }}" {% if code==locale %}selected{% endif %}>{{ meta.native }}</option>
+        {% endfor %}
+      </select>
+
+      {% if user %}
+      <span class="user-chip">{{ user.username }}</span>
+      <a class="btn ghost" href="/panel/logout">{{ t('nav.logout') }}</a>
+      {% else %}
+      <a class="btn ghost" href="/panel/login">{{ t('nav.login') }}</a>
+      {% endif %}
+    </div>
+  </header>
+  <main class="content" id="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}</style>
+<script src="/panel/static/js/app.js"></script>
+</body>
+</html>

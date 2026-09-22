@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ t('usage.title') }}</h1>
+    <p class="lede">{{ t('usage.estimate_note') }}</p>
+  </div>
+</div>
+<div class="card"><canvas id="usage-chart" height="120"></canvas></div>
+<p class="empty" id="usage-empty">{{ t('usage.empty') }}</p>
+<script>
+fetch('/v1/stats/summary').then(function(r){return r.json();}).then(function(s){
+  if(!s.runs_total){return;}
+  var empty = document.getElementById('usage-empty');
+  if(empty) empty.style.display='none';
+  var ctx = document.getElementById('usage-chart');
+  if(window.Chart){
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Succeeded', 'Failed'],
+        datasets: [{ data: [s.runs_succeeded, s.runs_failed], backgroundColor: ['#059669', '#dc2626'] }]
+      }
+    });
+  }
+});
+</script>
+{% endblock %}
