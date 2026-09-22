@@ -1,23 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Providers &amp; Credentials</h1>
-<p class="muted">A provider is a usable configuration of an engine (keys, endpoint, proxy, model).</p>
+<div class="page-head">
+  <div>
+    <h1>{{ t('providers.title') }}</h1>
+    <p class="lede">{{ t('providers.subtitle') }}</p>
+  </div>
+</div>
+<p class="alert info">{{ t('providers.custom_endpoint_help') }}</p>
 {% if providers %}
-<table class="table">
-  <thead><tr><th>Label</th><th>Engine</th><th>Health</th><th>Enabled</th></tr></thead>
-  <tbody>
-  {% for p in providers %}
-    <tr>
-      <td>{{ p.label }}</td>
-      <td>{{ p.engine_id }}</td>
-      <td><span class="badge">{{ p.health }}</span></td>
-      <td>{{ p.enabled }}</td>
-    </tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ t('common.label') }}</th>
+          <th>{{ t('col.engine') }}</th>
+          <th>{{ t('common.health') }}</th>
+          <th>{{ t('common.enabled') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for p in providers %}
+        <tr>
+          <td>{{ p.label }}</td>
+          <td>{{ p.engine_id }}</td>
+          <td><span class="badge {{ p.health }}">{{ p.health }}</span></td>
+          <td>{{ t('common.yes') if p.enabled else t('common.no') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% else %}
-<p class="empty">No providers configured. Use <code>ocrroute setup</code> or <code>POST /v1/providers</code>.
-Custom endpoint field accepts any OpenAI-compatible base URL you operate.</p>
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">🔑</div>
+  <p>{{ t('providers.empty') }}</p>
+</div>
 {% endif %}
 {% endblock %}

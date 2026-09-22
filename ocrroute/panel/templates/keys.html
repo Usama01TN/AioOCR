@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>API Keys</h1>
-<p class="muted">Client keys for calling OcrRoute. Secrets are shown once at creation.</p>
-<p class="empty">Create a key with <code>ocrroute key create --name ci --scope ocr:write</code> or <code>POST /v1/keys</code>.</p>
+<div class="page-head">
+  <div>
+    <h1>{{ t('keys.title') }}</h1>
+    <p class="lede">{{ t('keys.subtitle') }}</p>
+  </div>
+</div>
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">▤</div>
+  <p>{{ t('keys.empty') }}</p>
+</div>
 {% endblock %}

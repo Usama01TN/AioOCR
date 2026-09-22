@@ -39,4 +39,12 @@ try:
 except Exception:  # pragma: no cover
     from engines.ocrplugin import OCRError, OCRPlugin, is_url  # type: ignore
 
-__all__ = ["OCRPlugin", "OCRError", "is_url"]
+try:
+    from ocrroute.engines import _compat as compat
+except Exception:  # pragma: no cover
+    try:
+        import engines._compat as compat  # type: ignore
+    except Exception:
+        compat = None
+
+__all__ = ["OCRPlugin", "OCRError", "is_url", "compat"]

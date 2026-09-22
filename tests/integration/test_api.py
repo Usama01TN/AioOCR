@@ -123,3 +123,18 @@ async def test_panel_overview(client):
     r = await client.get("/panel/")
     assert r.status_code == 200
     assert b"Overview" in r.content
+
+
+@pytest.mark.asyncio
+async def test_panel_arabic_rtl(client):
+    r = await client.get("/panel/?lang=ar")
+    assert r.status_code == 200
+    assert b'dir="rtl"' in r.content
+    assert "نظرة عامة".encode("utf-8") in r.content
+
+
+@pytest.mark.asyncio
+async def test_panel_theme_dark(client):
+    r = await client.get("/panel/?theme=dark")
+    assert r.status_code == 200
+    assert b'data-theme="dark"' in r.content

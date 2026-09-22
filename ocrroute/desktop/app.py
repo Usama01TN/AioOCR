@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from typing import Any
 
 from ocrroute import __version__
@@ -38,6 +39,39 @@ def main() -> None:
     app.setApplicationName("OcrRoute Desktop")
     app.setOrganizationName("OcrRoute")
     app.setApplicationVersion(__version__)
+
+    # Theme + layout direction from QSettings / system
+    from PyQt5.QtCore import QSettings, QLocale, QTranslator
+
+    qsettings = QSettings()
+    theme = str(qsettings.value("ui/theme", "system"))
+    lang = str(qsettings.value("ui/language", QLocale.system().name()[:2] or "en"))
+    from ocrroute.i18n import AVAILABLE_LOCALES, get_locale
+
+    lang = get_locale(lang)
+    meta = AVAILABLE_LOCALES.get(lang, AVAILABLE_LOCALES["en"])
+    if meta.get("dir") == "rtl":
+        app.setLayoutDirection(Qt.RightToLeft)
+    else:
+        app.setLayoutDirection(Qt.LeftToRight)
+
+    styles_dir = Path(__file__).resolve().parent / "styles"
+    qss_name = "dark.qss"
+    if theme == "light":
+        qss_name = "light.qss"
+    elif theme == "system":
+        # Prefer light unless the palette is dark-ish
+        try:
+            from PyQt5.QtGui import QGuiApplication
+
+            pal = QGuiApplication.palette()
+            if pal.color(pal.Window).lightness() >= 128:
+                qss_name = "light.qss"
+        except Exception:
+            qss_name = "light.qss"
+    qss_path = styles_dir / qss_name
+    if qss_path.is_file():
+        app.setStyleSheet(qss_path.read_text(encoding="utf-8"))
 
     # Single-instance lock
     from PyQt5.QtNetwork import QLocalServer, QLocalSocket

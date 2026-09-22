@@ -1,19 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ locale }}" dir="{{ dir }}" data-theme="{{ theme }}">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Login · OcrRoute</title>
+  <meta name="color-scheme" content="light dark"/>
+  <title>{{ t('login.title') }} · {{ t('app.name') }}</title>
   <link rel="stylesheet" href="/panel/static/css/app.css"/>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ocrroute-theme');
+        if (t === 'light' || t === 'dark' || t === 'system') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="login-page">
-<form class="card login-card" method="post" action="/panel/login">
-  <h1>OcrRoute</h1>
-  <p class="muted">Sign in to the control panel</p>
-  <label>Username <input name="username" required autofocus/></label>
-  <label>Password <input name="password" type="password" required/></label>
-  <button class="btn primary" type="submit">Sign in</button>
-  <p class="muted">First login creates the admin user.</p>
+<form class="card login-card form" method="post" action="/panel/login">
+  <div class="login-brand">
+    <span class="logo" aria-hidden="true">OR</span>
+    <div>
+      <strong>{{ t('app.name') }}</strong>
+      <div class="muted" style="font-size:.8rem">{{ tagline }}</div>
+    </div>
+  </div>
+  <h1>{{ t('login.title') }}</h1>
+  <p class="muted">{{ t('login.subtitle') }}</p>
+  {% if login_error %}
+  <div class="alert error" role="alert">{{ t('login.error') }}</div>
+  {% endif %}
+  <label>{{ t('login.username') }}
+    <input name="username" required autofocus autocomplete="username"/>
+  </label>
+  <label>{{ t('login.password') }}
+    <input name="password" type="password" required autocomplete="current-password"/>
+  </label>
+  <button class="btn primary" type="submit">{{ t('login.submit') }}</button>
+  <p class="login-foot muted">{{ t('login.first_user') }}</p>
+  <div class="login-foot" style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap">
+    <select class="lang-select" aria-label="{{ t('topbar.language') }}"
+            onchange="location.href='/panel/prefs?lang='+encodeURIComponent(this.value)+'&next=/panel/login'">
+      {% for code, meta in locales.items() %}
+      <option value="{{ code }}" {% if code==locale %}selected{% endif %}>{{ meta.native }}</option>
+      {% endfor %}
+    </select>
+    <select class="theme-select" aria-label="{{ t('topbar.theme') }}"
+            onchange="(function(v){try{localStorage.setItem('ocrroute-theme',v)}catch(e){}location.href='/panel/prefs?theme='+encodeURIComponent(v)+'&next=/panel/login'})(this.value)">
+      <option value="system" {% if theme=='system' %}selected{% endif %}>{{ t('topbar.theme.system') }}</option>
+      <option value="light" {% if theme=='light' %}selected{% endif %}>{{ t('topbar.theme.light') }}</option>
+      <option value="dark" {% if theme=='dark' %}selected{% endif %}>{{ t('topbar.theme.dark') }}</option>
+    </select>
+  </div>
 </form>
 </body>
 </html>

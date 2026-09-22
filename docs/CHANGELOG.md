@@ -4,6 +4,9 @@
 
 ### Added
 
+- Multilingual control panel (`en`/`ar`/`fr`/`de`/`es`/`zh`) with RTL Arabic layout
+- Professional light / dark / system theme (CSS design tokens, sticky shell, mobile nav)
+- Engine-layer `_compat` helpers for Python 2 and 3 dual syntax
 - OcrRoute gateway package around vendored AioOCR engines
 - FastAPI `/v1` API: OCR, runs, jobs, engines, providers, routes, keys, usage, tools (reserved)
 - Routing engine with 14 strategies, breaker, cache, SSRF input pipeline, exports

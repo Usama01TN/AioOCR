@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+
+from ocrroute.i18n import get_locale, translate
 
 
 class ToolsPage(QWidget):
@@ -9,25 +11,24 @@ class ToolsPage(QWidget):
 
     def __init__(self, main=None) -> None:
         super().__init__()
+        lang = get_locale(str(QSettings().value("ui/language", "en")))
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignCenter)
         icon = QLabel("🧰")
         icon.setAlignment(Qt.AlignCenter)
         icon.setStyleSheet("font-size: 48px;")
         layout.addWidget(icon)
-        title = QLabel(self.tr("Tools"))
+        title = QLabel(translate("tools.title", lang))
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 22px; font-weight: bold;")
         layout.addWidget(title)
-        sub = QLabel(
-            self.tr("No tools are installed. This section is reserved for future post-processing extensions.")
-        )
+        sub = QLabel(translate("tools.empty", lang))
         sub.setWordWrap(True)
         sub.setAlignment(Qt.AlignCenter)
         layout.addWidget(sub)
-        btn = QPushButton(self.tr("Add tool"))
+        btn = QPushButton(translate("tools.add", lang))
         btn.setEnabled(False)
-        btn.setToolTip(self.tr("Tools are reserved for future use"))
+        btn.setToolTip(translate("tools.add_disabled", lang))
         layout.addWidget(btn, alignment=Qt.AlignCenter)
 
     def set_base_url(self, url: str) -> None:

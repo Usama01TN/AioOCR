@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Batch</h1>
-<p class="muted">Submit many files/URLs via <code>POST /v1/batch</code> or <code>ocrroute batch</code>.</p>
-<p class="empty">No active jobs.</p>
+<div class="page-head">
+  <div>
+    <h1>{{ t('batch.title') }}</h1>
+    <p class="lede">{{ t('batch.subtitle') }}</p>
+  </div>
+</div>
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">⧉</div>
+  <p>{{ t('batch.empty') }}</p>
+</div>
 {% endblock %}

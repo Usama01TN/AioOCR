@@ -16,14 +16,26 @@ from io import BytesIO
 from time import sleep
 
 try:
-    from urlparse import urlparse  # Python 2
-except ImportError:
-    from urllib.parse import urlparse  # Python 3
+    from ._compat import string_types, text_type, urlparse
+except Exception:
+    try:
+        from engines._compat import string_types, text_type, urlparse
+    except Exception:
+        try:
+            from urlparse import urlparse  # Python 2
+        except ImportError:
+            from urllib.parse import urlparse  # Python 3
+        string_types = (str,)
+        try:
+            string_types = (basestring,)  # noqa: F821  # Python 2
+        except NameError:
+            string_types = (str,)
+        text_type = type(u'')
 
 
 def is_url(text):
     """Return True when *text* looks like an http(s) URL."""
-    if not isinstance(text, str):
+    if not isinstance(text, string_types):
         return False
     try:
         result = urlparse(text)

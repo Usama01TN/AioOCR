@@ -1,23 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Runs &amp; Logs</h1>
+<div class="page-head">
+  <div>
+    <h1>{{ t('runs.title') }}</h1>
+  </div>
+</div>
 {% if runs %}
-<table class="table">
-  <thead><tr><th>ID</th><th>Status</th><th>Engine</th><th>Chars</th><th>Duration</th><th>Created</th></tr></thead>
-  <tbody>
-  {% for r in runs %}
-  <tr>
-    <td><a href="/v1/runs/{{ r.id }}">{{ r.id[:10] }}…</a></td>
-    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
-    <td>{{ r.requested_engine or '—' }}</td>
-    <td>{{ r.chars }}</td>
-    <td>{{ r.duration_ms }} ms</td>
-    <td>{{ r.created_at }}</td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div class="card">
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{{ t('col.status') }}</th>
+          <th>{{ t('col.engine') }}</th>
+          <th>{{ t('col.chars') }}</th>
+          <th>{{ t('col.duration') }}</th>
+          <th>{{ t('col.time') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in runs %}
+      <tr>
+        <td><a href="/v1/runs/{{ r.id }}">{{ r.id[:10] }}…</a></td>
+        <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+        <td>{{ r.requested_engine or '—' }}</td>
+        <td>{{ r.chars }}</td>
+        <td>{{ r.duration_ms }} ms</td>
+        <td>{{ r.created_at }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% else %}
-<p class="empty">No runs recorded yet.</p>
+<div class="empty-state">
+  <div class="empty-icon" aria-hidden="true">☰</div>
+  <p>{{ t('runs.empty') }}</p>
+</div>
 {% endif %}
 {% endblock %}

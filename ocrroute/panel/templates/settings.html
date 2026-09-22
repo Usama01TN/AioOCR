@@ -1,14 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Settings</h1>
+<div class="page-head">
+  <div>
+    <h1>{{ t('settings.title') }}</h1>
+  </div>
+</div>
 <div class="card">
   <dl class="kv">
-    <dt>Home</dt><dd><code>{{ settings.home }}</code></dd>
-    <dt>API port</dt><dd>{{ settings.port }}</dd>
-    <dt>Panel port (split)</dt><dd>{{ settings.panel_port }}</dd>
-    <dt>Privacy mode</dt><dd>{{ settings.privacy_mode }}</dd>
-    <dt>Cache TTL</dt><dd>{{ settings.cache_ttl_seconds }}s</dd>
-    <dt>Log retention</dt><dd>{{ settings.log_retention_days }} days</dd>
+    <dt>{{ t('settings.home') }}</dt><dd><code>{{ settings.home }}</code></dd>
+    <dt>{{ t('settings.api_port') }}</dt><dd>{{ settings.port }}</dd>
+    <dt>{{ t('settings.panel_port') }}</dt><dd>{{ settings.panel_port }}</dd>
+    <dt>{{ t('settings.privacy') }}</dt>
+    <dd>{{ t('common.on') if settings.privacy_mode else t('common.off') }}</dd>
+    <dt>{{ t('settings.cache_ttl') }}</dt><dd>{{ settings.cache_ttl_seconds }}s</dd>
+    <dt>{{ t('settings.retention') }}</dt>
+    <dd>{{ t('settings.days', n=settings.log_retention_days) }}</dd>
+    <dt>{{ t('topbar.language') }}</dt>
+    <dd>
+      <select class="lang-select" onchange="OcrRouteUI.setLang(this.value)">
+        {% for code, meta in locales.items() %}
+        <option value="{{ code }}" {% if code==locale %}selected{% endif %}>{{ meta.native }}</option>
+        {% endfor %}
+      </select>
+    </dd>
+    <dt>{{ t('topbar.theme') }}</dt>
+    <dd>
+      <select class="theme-select" onchange="OcrRouteUI.setTheme(this.value)">
+        <option value="system" {% if theme=='system' %}selected{% endif %}>{{ t('topbar.theme.system') }}</option>
+        <option value="light" {% if theme=='light' %}selected{% endif %}>{{ t('topbar.theme.light') }}</option>
+        <option value="dark" {% if theme=='dark' %}selected{% endif %}>{{ t('topbar.theme.dark') }}</option>
+      </select>
+    </dd>
   </dl>
 </div>
 {% endblock %}

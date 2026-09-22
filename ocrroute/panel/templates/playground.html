@@ -1,44 +1,90 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Playground</h1>
-<form class="card form" action="/v1/ocr" method="post" enctype="multipart/form-data"
-      onsubmit="return playgroundSubmit(event)">
-  <label>Image / PDF
-    <input type="file" name="file" id="pg-file" accept="image/*,application/pdf" required/>
-  </label>
-  <label>Engine
-    <select name="engine" id="pg-engine">
-      <option value="">auto</option>
-      {% for e in engines if e.available %}
-      <option value="{{ e.id }}">{{ e.name }} ({{ e.kind }})</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>Language <input name="language" value="en"/></label>
-  <button class="btn primary" type="submit">Run OCR</button>
-</form>
-<div class="split">
-  <div class="card"><h3>Input</h3><img id="pg-preview" alt="" style="max-width:100%"/></div>
-  <div class="card"><h3>Result</h3><pre id="pg-result" class="code">—</pre></div>
+<div class="page-head">
+  <div>
+    <h1>{{ t('playground.title') }}</h1>
+    <p class="lede">{{ t('playground.subtitle') }}</p>
+  </div>
 </div>
+
+<form class="card form" id="pg-form" action="/v1/ocr" method="post" enctype="multipart/form-data"
+      onsubmit="return playgroundSubmit(event)">
+  <div class="dropzone" id="pg-drop" onclick="document.getElementById('pg-file').click()">
+    <div style="font-size:1.6rem;margin-bottom:.35rem" aria-hidden="true">📄</div>
+    <div>{{ t('playground.drop') }}</div>
+    <input type="file" name="file" id="pg-file" accept="image/*,application/pdf" required
+           onchange="OcrRouteUI.previewFile(this)"/>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <label>{{ t('playground.engine') }}
+      <select name="engine" id="pg-engine">
+        <option value="">{{ t('playground.auto') }}</option>
+        {% for e in engines if e.available %}
+        <option value="{{ e.id }}">{{ e.name }} ({{ e.kind }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>{{ t('playground.language') }}
+      <input name="language" value="en" placeholder="en, ar, fr…"/>
+    </label>
+  </div>
+  <button class="btn primary" type="submit">{{ t('playground.run') }}</button>
+</form>
+
+<div class="split">
+  <div class="card">
+    <h3>{{ t('playground.input') }}</h3>
+    <img id="pg-preview" alt=""/>
+  </div>
+  <div class="card">
+    <h3>{{ t('playground.result') }}</h3>
+    <pre id="pg-result" class="code">—</pre>
+  </div>
+</div>
+
 <script>
 function playgroundSubmit(ev){
   ev.preventDefault();
-  const fd=new FormData(ev.target);
-  const f=document.getElementById('pg-file').files[0];
-  if(f){const url=URL.createObjectURL(f);document.getElementById('pg-preview').src=url;}
-  fetch('/v1/ocr',{method:'POST',body:fd}).then(r=>r.json()).then(j=>{
-    document.getElementById('pg-result').textContent=JSON.stringify(j,null,2);
-  }).catch(e=>{document.getElementById('pg-result').textContent=String(e);});
+  const fd = new FormData(ev.target);
+  const el = document.getElementById('pg-result');
+  el.textContent = '…';
+  fetch('/v1/ocr', {method:'POST', body: fd})
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      el.textContent = JSON.stringify(j, null, 2);
+    })
+    .catch(function(e){ el.textContent = String(e); });
   return false;
 }
-document.addEventListener('paste',e=>{
-  const items=e.clipboardData&&e.clipboardData.items;if(!items)return;
-  for(const it of items){if(it.type.startsWith('image/')){
-    const file=it.getAsFile();const dt=new DataTransfer();dt.items.add(file);
-    document.getElementById('pg-file').files=dt.files;
-    document.getElementById('pg-preview').src=URL.createObjectURL(file);
-  }}
+(function(){
+  var dz = document.getElementById('pg-drop');
+  if(!dz) return;
+  ['dragenter','dragover'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){
+      e.preventDefault();
+      dz.classList.remove('dragover');
+      if(ev==='drop' && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]){
+        var dt = new DataTransfer();
+        dt.items.add(e.dataTransfer.files[0]);
+        document.getElementById('pg-file').files = dt.files;
+        OcrRouteUI.previewFile(document.getElementById('pg-file'));
+      }
+    });
+  });
+})();
+document.addEventListener('paste', function(e){
+  var items = e.clipboardData && e.clipboardData.items; if(!items) return;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type.indexOf('image/')===0){
+      var file = items[i].getAsFile();
+      var dt = new DataTransfer(); dt.items.add(file);
+      document.getElementById('pg-file').files = dt.files;
+      OcrRouteUI.previewFile(document.getElementById('pg-file'));
+    }
+  }
 });
 </script>
 {% endblock %}
