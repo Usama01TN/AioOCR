@@ -1,10 +1,10 @@
 """In-memory sliding-window rate limits and budgets."""
+
 from __future__ import annotations
 
 import threading
 import time
 from collections import defaultdict, deque
-from typing import Any
 
 
 class SlidingWindowCounter:

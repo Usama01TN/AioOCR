@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Legacy OcrBase compatibility adapter.
 
@@ -9,9 +8,8 @@ Preserves the original call shape::
 so existing scripts keep working. Uses the OcrRoute engine registry
 instead of ``import_module('__init__')`` and sys.path mutation.
 """
-from __future__ import annotations
 
-from typing import Any
+from __future__ import annotations
 
 from ocrroute.catalog.registry import get_registry
 from ocrroute.engines.ocrplugin import OCRPlugin
@@ -20,7 +18,7 @@ from ocrroute.logutil import get_logger
 log = get_logger(__name__)
 
 
-class OcrBase(object):
+class OcrBase:
     """
     OcrBase class (compatibility shim).
     """

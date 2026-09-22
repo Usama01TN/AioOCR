@@ -1,36 +1,58 @@
 """OcrRoute Desktop — PyQt5 client of the /v1 API."""
+
 from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ocrroute import __version__
 
+try:
+    from PyQt5.QtCore import QLocale, QSettings, Qt, QThread, pyqtSignal
+    from PyQt5.QtWidgets import (
+        QAction,
+        QApplication,
+        QHBoxLayout,
+        QListWidget,
+        QListWidgetItem,
+        QMainWindow,
+        QMenu,
+        QMessageBox,
+        QStackedWidget,
+        QSystemTrayIcon,
+        QWidget,
+    )
 
-def main() -> None:
-    try:
-        from PyQt5.QtCore import Qt, QThread, pyqtSignal
-        from PyQt5.QtGui import QIcon
+    _QT_AVAILABLE = True
+except ImportError:  # pragma: no cover - desktop extra not installed
+    _QT_AVAILABLE = False
+    # Stubs so module import succeeds without the desktop extra;
+    # main() refuses to run via _require_qt().
+    QThread = object  # type: ignore[assignment,misc]
+    QMainWindow = object  # type: ignore[assignment,misc]
+
+    def pyqtSignal(*_args: Any, **_kwargs: Any) -> Any:  # type: ignore[misc]
+        return None
+
+    if TYPE_CHECKING:
+        from PyQt5.QtCore import QLocale, QSettings, Qt, QThread, pyqtSignal
         from PyQt5.QtWidgets import (
             QApplication,
-            QHBoxLayout,
-            QLabel,
-            QListWidget,
-            QListWidgetItem,
             QMainWindow,
-            QMessageBox,
-            QStackedWidget,
-            QSystemTrayIcon,
-            QVBoxLayout,
-            QWidget,
-            QAction,
             QMenu,
+            QSystemTrayIcon,
         )
-    except ImportError as exc:
-        print("PyQt5 is required: pip install ocrroute[desktop]", file=sys.stderr)
-        raise SystemExit(1) from exc
 
+
+def _require_qt() -> None:
+    if not _QT_AVAILABLE:
+        print("PyQt5 is required: pip install ocrroute[desktop]", file=sys.stderr)
+        raise SystemExit(1)
+
+
+def main() -> None:
+    _require_qt()
     # High-DPI
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
@@ -41,8 +63,6 @@ def main() -> None:
     app.setApplicationVersion(__version__)
 
     # Theme + layout direction from QSettings / system
-    from PyQt5.QtCore import QSettings, QLocale, QTranslator
-
     qsettings = QSettings()
     theme = str(qsettings.value("ui/theme", "system"))
     lang = str(qsettings.value("ui/language", QLocale.system().name()[:2] or "en"))
@@ -146,17 +166,6 @@ class ServerThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        from PyQt5.QtWidgets import (
-            QHBoxLayout,
-            QLabel,
-            QListWidget,
-            QListWidgetItem,
-            QStackedWidget,
-            QVBoxLayout,
-            QWidget,
-            QAction,
-        )
-
         self.setWindowTitle("OcrRoute Desktop")
         self.resize(1100, 720)
         self._base_url = ""
@@ -241,8 +250,6 @@ class MainWindow(QMainWindow):
                 p.set_base_url(url)
 
     def _on_fail(self, err: str) -> None:
-        from PyQt5.QtWidgets import QMessageBox
-
         QMessageBox.warning(self, "Server error", err)
 
     def closeEvent(self, event: Any) -> None:  # noqa: N802

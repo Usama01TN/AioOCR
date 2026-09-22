@@ -1,4 +1,5 @@
 """Health, ready, version, doctor, metrics."""
+
 from __future__ import annotations
 
 import platform
@@ -75,8 +76,8 @@ async def doctor(
     # Tesseract binary probe
     tesseract_cmd = None
     try:
-        from shutil import which
         from pathlib import Path
+        from shutil import which
 
         candidates = [
             r"C:\Program Files\Tesseract-OCR\tesseract.exe",

@@ -1,4 +1,5 @@
 """Batch jobs."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -24,9 +25,7 @@ async def get_job(
     auth: AuthContext = Depends(require_scope("ocr:read")),
 ) -> dict[str, Any]:
     job = (
-        await session.execute(
-            select(Job).where(Job.id == job_id).options(selectinload(Job.items))
-        )
+        await session.execute(select(Job).where(Job.id == job_id).options(selectinload(Job.items)))
     ).scalar_one_or_none()
     if not job:
         raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value})

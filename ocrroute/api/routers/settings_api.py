@@ -1,4 +1,5 @@
 """Settings & audit."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -68,8 +69,10 @@ async def list_audit(
     limit: int = 100,
 ) -> dict[str, Any]:
     rows = (
-        await session.execute(select(AuditLog).order_by(AuditLog.created_at.desc()).limit(limit))
-    ).scalars().all()
+        (await session.execute(select(AuditLog).order_by(AuditLog.created_at.desc()).limit(limit)))
+        .scalars()
+        .all()
+    )
     return {
         "entries": [
             {

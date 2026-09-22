@@ -1,4 +1,5 @@
 """OcrRoute internationalisation — catalogues and helpers."""
+
 from __future__ import annotations
 
 from ocrroute.i18n.catalog import (

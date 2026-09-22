@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QPlainTextEdit,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -52,9 +52,9 @@ class ScanPage(QWidget):
             self._run_ocr(path)
 
     def _paste(self) -> None:
-        from PyQt5.QtGui import QGuiApplication
-        from PyQt5.QtCore import QStandardPaths
         import tempfile
+
+        from PyQt5.QtGui import QGuiApplication
 
         clip = QGuiApplication.clipboard()
         img = clip.image()
@@ -67,11 +67,12 @@ class ScanPage(QWidget):
 
     def _region(self) -> None:
         """Frameless translucent rubber-band grabber."""
-        from PyQt5.QtCore import Qt, QRect, QPoint
-        from PyQt5.QtGui import QPainter, QColor, QGuiApplication
-        from PyQt5.QtWidgets import QWidget
         import tempfile
         from pathlib import Path
+
+        from PyQt5.QtCore import QPoint, QRect, Qt
+        from PyQt5.QtGui import QColor, QGuiApplication, QPainter
+        from PyQt5.QtWidgets import QWidget
 
         class Rubber(QWidget):
             def __init__(self, cb):

@@ -1,4 +1,5 @@
 """Nightly maintenance: cache expiry, retention rollup, vacuum."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -25,18 +26,22 @@ async def expire_cache(session: AsyncSession) -> int:
     return count
 
 
-async def rollup_and_prune(
-    session: AsyncSession, retention_days: int = 30
-) -> dict[str, int]:
+async def rollup_and_prune(session: AsyncSession, retention_days: int = 30) -> dict[str, int]:
     """Aggregate old runs into usage_daily then delete them."""
     cutoff_dt = _utcnow() - timedelta(days=retention_days)
     cutoff = cutoff_dt.replace(microsecond=0).isoformat()
 
     rows = (
-        await session.execute(
-            select(Run).where(Run.created_at < cutoff, Run.status.in_(("succeeded", "failed", "cached")))
+        (
+            await session.execute(
+                select(Run).where(
+                    Run.created_at < cutoff, Run.status.in_(("succeeded", "failed", "cached"))
+                )
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     buckets: dict[tuple[str, str, str, str], dict[str, Any]] = {}
     run_ids: list[str] = []
@@ -131,8 +136,10 @@ async def optimize_db(session: AsyncSession, vacuum: bool = False) -> None:
 async def reconcile_interrupted(session: AsyncSession) -> int:
     """Mark runs left in running/queued state after a crash as failed."""
     rows = (
-        await session.execute(select(Run).where(Run.status.in_(("running", "queued"))))
-    ).scalars().all()
+        (await session.execute(select(Run).where(Run.status.in_(("running", "queued")))))
+        .scalars()
+        .all()
+    )
     now = _utcnow().replace(microsecond=0).isoformat()
     for run in rows:
         run.status = "failed"

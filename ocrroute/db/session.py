@@ -1,4 +1,5 @@
 """Async SQLAlchemy engine / session factory."""
+
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
@@ -71,6 +72,8 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db(settings: Settings | None = None) -> None:
     """Create all tables (dev/bootstrap). Alembic is preferred in production."""
+    from ocrroute.db import models  # noqa: F401  (register models on Base.metadata)
+
     engine = get_engine(settings)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

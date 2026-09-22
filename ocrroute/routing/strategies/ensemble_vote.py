@@ -1,7 +1,9 @@
 """Run first k healthy candidates in parallel (ordering only; execution in router)."""
+
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from ocrroute.routing.strategies.base import Strategy, register
 
@@ -30,4 +32,4 @@ class EnsembleVoteStrategy(Strategy):
 
     def explain(self, context: dict[str, Any] | None = None) -> list[str]:
         k = int((context or {}).get("ensemble_k", 3))
-        return [f"strategy=ensemble_vote", f"ensemble_k={k}"]
+        return ["strategy=ensemble_vote", f"ensemble_k={k}"]

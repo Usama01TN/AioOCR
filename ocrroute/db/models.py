@@ -1,8 +1,9 @@
 """SQLAlchemy 2.0 models for OcrRoute."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from sqlalchemy import (
     JSON,
@@ -39,25 +40,25 @@ class Engine(Base):
     vendor: Mapped[str] = mapped_column(String(128), default="")
     module: Mapped[str] = mapped_column(String(256), default="")
     available: Mapped[int] = mapped_column(Integer, default=0)
-    import_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    install_hint: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    import_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    install_hint: Mapped[str | None] = mapped_column(Text, nullable=True)
     requires_key: Mapped[bool] = mapped_column(Boolean, default=False)
     supports_pdf: Mapped[bool] = mapped_column(Boolean, default=False)
     supports_handwriting: Mapped[bool] = mapped_column(Boolean, default=False)
     supports_tables: Mapped[bool] = mapped_column(Boolean, default=False)
     supports_overlay: Mapped[bool] = mapped_column(Boolean, default=True)
-    languages: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    option_schema: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    languages: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    option_schema: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     cost_model: Mapped[str] = mapped_column(String(32), default="local")
     unit_price: Mapped[float] = mapped_column(Float, default=0.0)
-    homepage: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
-    docs_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    homepage: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    docs_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     quality_score: Mapped[float] = mapped_column(Float, default=0.5)
     first_seen: Mapped[str] = mapped_column(String(32), default=_utcnow)
     last_seen: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
-    providers: Mapped[list["Provider"]] = relationship(back_populates="engine")
+    providers: Mapped[list[Provider]] = relationship(back_populates="engine")
 
 
 class Provider(Base):
@@ -69,28 +70,28 @@ class Provider(Base):
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     priority: Mapped[int] = mapped_column(Integer, default=100)
     weight: Mapped[int] = mapped_column(Integer, default=1)
-    endpoint: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
-    model: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
-    language: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    endpoint: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    model: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    language: Mapped[str | None] = mapped_column(String(128), nullable=True)
     timeout: Mapped[int] = mapped_column(Integer, default=30)
     retries: Mapped[int] = mapped_column(Integer, default=3)
-    options: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    proxy: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    options: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    proxy: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     concurrency_limit: Mapped[int] = mapped_column(Integer, default=4)
-    rpm_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    rpd_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    monthly_budget_cents: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    rpm_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    rpd_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    monthly_budget_cents: Mapped[float | None] = mapped_column(Float, nullable=True)
     health: Mapped[str] = mapped_column(String(32), default="unknown")
-    health_checked_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    health_checked_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     consecutive_failures: Mapped[int] = mapped_column(Integer, default=0)
-    circuit_open_until: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    last_used_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    circuit_open_until: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    last_used_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
     updated_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
-    engine: Mapped["Engine"] = relationship(back_populates="providers")
-    credentials: Mapped[list["Credential"]] = relationship(
+    engine: Mapped[Engine] = relationship(back_populates="providers")
+    credentials: Mapped[list[Credential]] = relationship(
         back_populates="provider", cascade="all, delete-orphan"
     )
 
@@ -104,13 +105,13 @@ class Credential(Base):
     secret_enc: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0)
-    last_used_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    last_used_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     success_count: Mapped[int] = mapped_column(Integer, default=0)
     failure_count: Mapped[int] = mapped_column(Integer, default=0)
-    exhausted_until: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    exhausted_until: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
-    provider: Mapped["Provider"] = relationship(back_populates="credentials")
+    provider: Mapped[Provider] = relationship(back_populates="credentials")
 
 
 class Route(Base):
@@ -122,15 +123,15 @@ class Route(Base):
     strategy: Mapped[str] = mapped_column(String(64), default="priority")
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
-    stop_condition: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    stop_condition: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     max_attempts: Mapped[int] = mapped_column(Integer, default=5)
     total_deadline_ms: Mapped[int] = mapped_column(Integer, default=120_000)
     cache_ttl_seconds: Mapped[int] = mapped_column(Integer, default=86400)
-    tool_chain: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    tool_chain: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
     updated_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
-    members: Mapped[list["RouteMember"]] = relationship(
+    members: Mapped[list[RouteMember]] = relationship(
         back_populates="route", cascade="all, delete-orphan", order_by="RouteMember.order_index"
     )
 
@@ -144,11 +145,11 @@ class RouteMember(Base):
     order_index: Mapped[int] = mapped_column(Integer, default=0)
     weight: Mapped[int] = mapped_column(Integer, default=1)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-    condition: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    option_overrides: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    condition: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    option_overrides: Mapped[Any | None] = mapped_column(JSON, nullable=True)
 
-    route: Mapped["Route"] = relationship(back_populates="members")
-    provider: Mapped["Provider"] = relationship()
+    route: Mapped[Route] = relationship(back_populates="members")
+    provider: Mapped[Provider] = relationship()
 
 
 class ApiKey(Base):
@@ -159,13 +160,13 @@ class ApiKey(Base):
     key_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     key_prefix: Mapped[str] = mapped_column(String(16), nullable=False)
     scopes: Mapped[Any] = mapped_column(JSON, default=list)
-    route_id: Mapped[Optional[str]] = mapped_column(ForeignKey("routes.id"), nullable=True)
-    rpm_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    rpd_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    monthly_budget_cents: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    route_id: Mapped[str | None] = mapped_column(ForeignKey("routes.id"), nullable=True)
+    rpm_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    rpd_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    monthly_budget_cents: Mapped[float | None] = mapped_column(Float, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-    expires_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    last_used_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    expires_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    last_used_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
 
@@ -178,40 +179,40 @@ class Run(Base):
     )
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=_id)
-    api_key_id: Mapped[Optional[str]] = mapped_column(ForeignKey("api_keys.id"), nullable=True)
-    route_id: Mapped[Optional[str]] = mapped_column(ForeignKey("routes.id"), nullable=True)
-    requested_engine: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
-    input_kind: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    mime: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
-    bytes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    image_sha256: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    api_key_id: Mapped[str | None] = mapped_column(ForeignKey("api_keys.id"), nullable=True)
+    route_id: Mapped[str | None] = mapped_column(ForeignKey("routes.id"), nullable=True)
+    requested_engine: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    input_kind: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    mime: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    image_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     page_count: Mapped[int] = mapped_column(Integer, default=1)
-    language: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    language: Mapped[str | None] = mapped_column(String(128), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="queued")
-    winning_attempt_id: Mapped[Optional[str]] = mapped_column(String(26), nullable=True)
+    winning_attempt_id: Mapped[str | None] = mapped_column(String(26), nullable=True)
     attempt_count: Mapped[int] = mapped_column(Integer, default=0)
     chars: Mapped[int] = mapped_column(Integer, default=0)
     lines: Mapped[int] = mapped_column(Integer, default=0)
     words: Mapped[int] = mapped_column(Integer, default=0)
-    mean_confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    mean_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     duration_ms: Mapped[int] = mapped_column(Integer, default=0)
     cost_cents: Mapped[float] = mapped_column(Float, default=0.0)
     cache_hit: Mapped[bool] = mapped_column(Boolean, default=False)
-    client_ip: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    user_agent: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
-    idempotency_key: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
-    error_code: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    result_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    routing_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    metadata_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    client_ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    result_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    routing_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    metadata_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
-    finished_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    finished_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
-    attempts: Mapped[list["Attempt"]] = relationship(
+    attempts: Mapped[list[Attempt]] = relationship(
         back_populates="run", cascade="all, delete-orphan"
     )
-    artifacts: Mapped[list["Artifact"]] = relationship(
+    artifacts: Mapped[list[Artifact]] = relationship(
         back_populates="run", cascade="all, delete-orphan"
     )
 
@@ -225,22 +226,22 @@ class Attempt(Base):
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=_id)
     run_id: Mapped[str] = mapped_column(ForeignKey("runs.id"), nullable=False)
-    provider_id: Mapped[Optional[str]] = mapped_column(ForeignKey("providers.id"), nullable=True)
-    engine_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
-    credential_id: Mapped[Optional[str]] = mapped_column(ForeignKey("credentials.id"), nullable=True)
+    provider_id: Mapped[str | None] = mapped_column(ForeignKey("providers.id"), nullable=True)
+    engine_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    credential_id: Mapped[str | None] = mapped_column(ForeignKey("credentials.id"), nullable=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(32), default="succeeded")
     duration_ms: Mapped[int] = mapped_column(Integer, default=0)
-    http_status: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    error_type: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    error_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     retries_used: Mapped[int] = mapped_column(Integer, default=0)
     chars: Mapped[int] = mapped_column(Integer, default=0)
     cost_cents: Mapped[float] = mapped_column(Float, default=0.0)
     started_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
-    finished_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    finished_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
-    run: Mapped["Run"] = relationship(back_populates="attempts")
+    run: Mapped[Run] = relationship(back_populates="attempts")
 
 
 class Artifact(Base):
@@ -251,10 +252,10 @@ class Artifact(Base):
     kind: Mapped[str] = mapped_column(String(32), nullable=False)
     path: Mapped[str] = mapped_column(String(512), nullable=False)
     bytes: Mapped[int] = mapped_column(Integer, default=0)
-    sha256: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
-    run: Mapped["Run"] = relationship(back_populates="artifacts")
+    run: Mapped[Run] = relationship(back_populates="artifacts")
 
 
 class CacheEntry(Base):
@@ -288,8 +289,8 @@ class UsageDaily(Base):
     pages: Mapped[int] = mapped_column(Integer, default=0)
     chars: Mapped[int] = mapped_column(Integer, default=0)
     cost_cents: Mapped[float] = mapped_column(Float, default=0.0)
-    p50_ms: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    p95_ms: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    p50_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
+    p95_ms: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class Job(Base):
@@ -297,19 +298,17 @@ class Job(Base):
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=_id)
     name: Mapped[str] = mapped_column(String(256), default="")
-    route_id: Mapped[Optional[str]] = mapped_column(ForeignKey("routes.id"), nullable=True)
+    route_id: Mapped[str | None] = mapped_column(ForeignKey("routes.id"), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="queued")
     total: Mapped[int] = mapped_column(Integer, default=0)
     done: Mapped[int] = mapped_column(Integer, default=0)
     failed: Mapped[int] = mapped_column(Integer, default=0)
-    options: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    webhook_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    options: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    webhook_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
-    finished_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    finished_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
-    items: Mapped[list["JobItem"]] = relationship(
-        back_populates="job", cascade="all, delete-orphan"
-    )
+    items: Mapped[list[JobItem]] = relationship(back_populates="job", cascade="all, delete-orphan")
 
 
 class JobItem(Base):
@@ -318,12 +317,12 @@ class JobItem(Base):
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=_id)
     job_id: Mapped[str] = mapped_column(ForeignKey("jobs.id"), nullable=False)
     source: Mapped[str] = mapped_column(Text, nullable=False)
-    run_id: Mapped[Optional[str]] = mapped_column(ForeignKey("runs.id"), nullable=True)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("runs.id"), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="queued")
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0)
 
-    job: Mapped["Job"] = relationship(back_populates="items")
+    job: Mapped[Job] = relationship(back_populates="items")
 
 
 class Setting(Base):
@@ -340,10 +339,10 @@ class AuditLog(Base):
     id: Mapped[str] = mapped_column(String(26), primary_key=True, default=_id)
     actor: Mapped[str] = mapped_column(String(128), default="")
     action: Mapped[str] = mapped_column(String(128), nullable=False)
-    target_type: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    target_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    detail: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
-    ip: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    target_type: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    target_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    detail: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
 
@@ -354,9 +353,9 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(256), nullable=False)
     role: Mapped[str] = mapped_column(String(32), default="admin")  # admin|operator|viewer
-    totp_secret_enc: Mapped[Optional[bytes]] = mapped_column(LargeBinary, nullable=True)
+    totp_secret_enc: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-    last_login_at: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    last_login_at: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
 
@@ -369,7 +368,7 @@ class Tool(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     version: Mapped[str] = mapped_column(String(32), default="0.0.0")
     enabled: Mapped[bool] = mapped_column(Boolean, default=False)
-    options_json: Mapped[Optional[Any]] = mapped_column(JSON, nullable=True)
+    options_json: Mapped[Any | None] = mapped_column(JSON, nullable=True)
     installed_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
 
@@ -384,8 +383,8 @@ class ToolRun(Base):
     tool_id: Mapped[str] = mapped_column(ForeignKey("tools.id"), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="pending")
     duration_ms: Mapped[int] = mapped_column(Integer, default=0)
-    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    output_ref: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    output_ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[str] = mapped_column(String(32), default=_utcnow)
 
 

@@ -1,8 +1,10 @@
 """Async batch job runner (in-process)."""
+
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Callable, Awaitable
+from collections.abc import Awaitable
+from typing import Any
 
 from ocrroute.logutil import get_logger
 

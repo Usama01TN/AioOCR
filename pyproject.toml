@@ -50,6 +50,7 @@ dependencies = [
     "requests>=2.31.0",
     "itsdangerous>=2.1.0",
     "orjson>=3.10.0",
+    "tomli>=2.0.0; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
@@ -71,7 +72,6 @@ dev = [
     "pytest>=8.2.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=5.0.0",
-    "pytest-qt>=4.4.0",
     "respx>=0.21.0",
     "ruff>=0.5.0",
     "black>=24.4.0",
@@ -118,6 +118,25 @@ exclude = ["ocrroute/engines"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Form",
+    "fastapi.File",
+    "fastapi.Header",
+    "fastapi.Cookie",
+    "fastapi.UploadFile",
+    "pydantic.Field",
+    "pydantic.fields.Field",
+    "typer.Option",
+    "typer.Argument",
+    "ocrroute.api.deps.db_session",
+    "ocrroute.api.security.require_scope",
+]
 
 [tool.black]
 line-length = 100

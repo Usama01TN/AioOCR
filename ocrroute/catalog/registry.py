@@ -2,13 +2,18 @@
 
 Wraps the vendored AioOCR plugin tree without rewriting engine modules.
 """
+
 from __future__ import annotations
 
 import importlib
 import inspect
 import pkgutil
 import re
-import tomllib
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10
+    import tomli as tomllib  # type: ignore[no-redef]
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -93,9 +98,7 @@ _KNOWN_PLUGINS = frozenset(
     }
 )
 
-_SKIP_CLASSES = frozenset(
-    {"SourceError", "OCRError", "OCRPlugin", "InMemoryInfer", "NoMakedirs"}
-)
+_SKIP_CLASSES = frozenset({"SourceError", "OCRError", "OCRPlugin", "InMemoryInfer", "NoMakedirs"})
 
 
 @dataclass

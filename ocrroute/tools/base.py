@@ -1,10 +1,10 @@
-# coding=utf-8
 """
 ToolPlugin: abstract base for future post-processing extensions.
 
 Mirrors the OCRPlugin philosophy so a later feature can be added without
 touching the gateway. No concrete subclass is provided in this release.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

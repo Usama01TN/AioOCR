@@ -1,4 +1,5 @@
 """Tools API — reserved empty scaffold (§12)."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -18,7 +19,10 @@ async def list_tools() -> dict[str, Any]:
     return {
         "tools": [t.to_dict() for t in tools],
         "reserved": True,
-        "message": "No tools are installed. This section is reserved for future post-processing extensions. See docs/TOOLS.md.",
+        "message": (
+            "No tools are installed. This section is reserved for future "
+            "post-processing extensions. See docs/TOOLS.md."
+        ),
     }
 
 
@@ -40,8 +44,7 @@ async def run_tool(tool_id: str) -> dict[str, Any]:
         detail={
             "error_code": ErrorCode.TOOLS_RESERVED.value,
             "error_message": (
-                f"Tools are reserved for future use; '{tool_id}' cannot be run. "
-                "See docs/TOOLS.md."
+                f"Tools are reserved for future use; '{tool_id}' cannot be run. See docs/TOOLS.md."
             ),
         },
     )

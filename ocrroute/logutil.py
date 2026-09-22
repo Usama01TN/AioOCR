@@ -1,4 +1,5 @@
 """Structured logging with secret redaction."""
+
 from __future__ import annotations
 
 import logging
@@ -9,7 +10,9 @@ from typing import Any
 import structlog
 
 _SECRET_PATTERNS = [
-    re.compile(r"(?i)(api[_-]?key|apikey|token|secret|password|authorization)\s*[:=]\s*['\"]?([^\s'\",}]+)"),
+    re.compile(
+        r"(?i)(api[_-]?key|apikey|token|secret|password|authorization)\s*[:=]\s*['\"]?([^\s'\",}]+)"
+    ),
     re.compile(r"(?i)bearer\s+[a-z0-9\-._~+/]+=*"),
     re.compile(r"ocrr_[A-Za-z0-9]{16,}"),
     re.compile(r"(?i)sk-[A-Za-z0-9]{16,}"),
@@ -22,15 +25,20 @@ def redact_secrets(value: str) -> str:
         return value
     out = value
     for pat in _SECRET_PATTERNS:
-        out = pat.sub(lambda m: (m.group(0)[: m.end(1) - m.start(0)] + "…[REDACTED]") if m.lastindex else "…[REDACTED]", out)
+        out = pat.sub(
+            lambda m: (
+                (m.group(0)[: m.end(1) - m.start(0)] + "…[REDACTED]")
+                if m.lastindex
+                else "…[REDACTED]"
+            ),
+            out,
+        )
         # simpler fallback
         out = pat.sub("…[REDACTED]", out)
     return out
 
 
-def _redact_processor(
-    _logger: Any, _method: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
+def _redact_processor(_logger: Any, _method: str, event_dict: dict[str, Any]) -> dict[str, Any]:
     for key, val in list(event_dict.items()):
         if isinstance(val, str):
             event_dict[key] = redact_secrets(val)

@@ -1,4 +1,5 @@
 """Routes management."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -36,8 +37,8 @@ async def list_routes(
     auth: AuthContext = Depends(require_scope("ocr:read")),
 ) -> dict[str, Any]:
     rows = (
-        await session.execute(select(Route).options(selectinload(Route.members)))
-    ).scalars().all()
+        (await session.execute(select(Route).options(selectinload(Route.members)))).scalars().all()
+    )
     return {
         "routes": [
             {
@@ -63,7 +64,9 @@ async def create_route(
     auth: AuthContext = Depends(require_scope("admin")),
 ) -> dict[str, Any]:
     if body.is_default:
-        existing = (await session.execute(select(Route).where(Route.is_default.is_(True)))).scalars().all()
+        existing = (
+            (await session.execute(select(Route).where(Route.is_default.is_(True)))).scalars().all()
+        )
         for e in existing:
             e.is_default = False
     r = Route(
@@ -105,7 +108,9 @@ async def get_route(
 ) -> dict[str, Any]:
     r = (
         await session.execute(
-            select(Route).where((Route.id == route_id) | (Route.name == route_id)).options(selectinload(Route.members))
+            select(Route)
+            .where((Route.id == route_id) | (Route.name == route_id))
+            .options(selectinload(Route.members))
         )
     ).scalar_one_or_none()
     if not r:
@@ -145,12 +150,16 @@ async def update_route(
 ) -> dict[str, Any]:
     r = await session.get(Route, route_id)
     if not r:
-        r = (await session.execute(select(Route).where(Route.name == route_id))).scalar_one_or_none()
+        r = (
+            await session.execute(select(Route).where(Route.name == route_id))
+        ).scalar_one_or_none()
     if not r:
         raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value})
     data = body.model_dump(exclude_unset=True)
     if data.get("is_default"):
-        existing = (await session.execute(select(Route).where(Route.is_default.is_(True)))).scalars().all()
+        existing = (
+            (await session.execute(select(Route).where(Route.is_default.is_(True)))).scalars().all()
+        )
         for e in existing:
             e.is_default = False
     for k, v in data.items():
@@ -208,7 +217,11 @@ async def simulate(
         await session.execute(
             select(Route)
             .where((Route.id == route_id) | (Route.name == route_id))
-            .options(selectinload(Route.members).selectinload(RouteMember.provider).selectinload(Provider.engine))
+            .options(
+                selectinload(Route.members)
+                .selectinload(RouteMember.provider)
+                .selectinload(Provider.engine)
+            )
         )
     ).scalar_one_or_none()
     if not r:
@@ -239,7 +252,11 @@ async def simulate(
     ctx = {
         "mime": body.mime,
         "page_count": body.pages,
-        "languages": body.language if isinstance(body.language, list) else ([body.language] if body.language else []),
+        "languages": (
+            body.language
+            if isinstance(body.language, list)
+            else ([body.language] if body.language else [])
+        ),
         "dimensions": (body.width, body.height),
         "handwriting": body.handwriting,
         "tables": body.tables,

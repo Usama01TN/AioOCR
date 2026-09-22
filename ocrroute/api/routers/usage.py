@@ -1,4 +1,5 @@
 """Usage & stats."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -20,7 +21,11 @@ async def usage(
     auth: AuthContext = Depends(require_scope("ocr:read")),
     group_by: str = Query(default="day"),
 ) -> dict[str, Any]:
-    rows = (await session.execute(select(UsageDaily).order_by(UsageDaily.day.desc()).limit(90))).scalars().all()
+    rows = (
+        (await session.execute(select(UsageDaily).order_by(UsageDaily.day.desc()).limit(90)))
+        .scalars()
+        .all()
+    )
     return {
         "group_by": group_by,
         "rows": [
@@ -50,12 +55,16 @@ async def stats_summary(
 ) -> dict[str, Any]:
     total = (await session.execute(select(func.count()).select_from(Run))).scalar() or 0
     succeeded = (
-        await session.execute(select(func.count()).select_from(Run).where(Run.status.in_(("succeeded", "cached"))))
+        await session.execute(
+            select(func.count()).select_from(Run).where(Run.status.in_(("succeeded", "cached")))
+        )
     ).scalar() or 0
     failed = (
         await session.execute(select(func.count()).select_from(Run).where(Run.status == "failed"))
     ).scalar() or 0
-    cost = (await session.execute(select(func.coalesce(func.sum(Run.cost_cents), 0.0)))).scalar() or 0.0
+    cost = (
+        await session.execute(select(func.coalesce(func.sum(Run.cost_cents), 0.0)))
+    ).scalar() or 0.0
     chars = (await session.execute(select(func.coalesce(func.sum(Run.chars), 0)))).scalar() or 0
     return {
         "runs_total": total,

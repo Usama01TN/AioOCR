@@ -1,25 +1,26 @@
 """Routing strategies registry."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ocrroute.routing.strategies.base import Strategy, get_strategy, list_strategies
 from ocrroute.routing.strategies import (  # noqa: F401 — register side effects
+    auto,
+    cost_optimised,
+    ensemble_vote,
+    fill_first,
+    language_aware,
+    least_latency,
+    least_used,
+    local_first,
+    p2c,
     priority,
+    quality_first,
+    random_strategy,
     round_robin,
     weighted,
-    fill_first,
-    least_used,
-    least_latency,
-    p2c,
-    random_strategy,
-    cost_optimised,
-    local_first,
-    quality_first,
-    language_aware,
-    ensemble_vote,
-    auto,
 )
+from ocrroute.routing.strategies.base import Strategy, get_strategy, list_strategies
 
 if TYPE_CHECKING:
     pass

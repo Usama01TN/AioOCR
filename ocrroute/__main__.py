@@ -1,4 +1,5 @@
 """Allow ``python -m ocrroute``."""
+
 from __future__ import annotations
 
 from ocrroute.cli.main import app

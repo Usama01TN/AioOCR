@@ -1,14 +1,13 @@
 """Input pipeline: fetch, sniff, SSRF guard, PDF split."""
+
 from __future__ import annotations
 
 import hashlib
 import ipaddress
-import re
 import socket
 from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path
-from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -197,7 +196,9 @@ def parse_page_range(spec: str | None, total: int) -> list[int]:
     return sorted(pages) if pages else list(range(total))
 
 
-def rasterize_pdf(data: bytes, *, dpi: int = 150, pages: str | None = None, max_pages: int = 200) -> list[bytes]:
+def rasterize_pdf(
+    data: bytes, *, dpi: int = 150, pages: str | None = None, max_pages: int = 200
+) -> list[bytes]:
     """Rasterize PDF pages to PNG bytes. Tries pypdfium2 / PIL fallback."""
     try:
         import pypdfium2 as pdfium
@@ -286,7 +287,9 @@ def load_input(
         data = raw
         kind = "bytes"
     else:
-        raise OcrRouteError("No input provided (file, url, base64, or bytes)", code=ErrorCode.BAD_INPUT)
+        raise OcrRouteError(
+            "No input provided (file, url, base64, or bytes)", code=ErrorCode.BAD_INPUT
+        )
 
     if len(data) > max_bytes:
         raise OcrRouteError("Input exceeds size limit", code=ErrorCode.TOO_LARGE)

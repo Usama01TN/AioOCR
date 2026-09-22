@@ -1,4 +1,5 @@
 """Error code taxonomy and HTTP status mapping."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -97,13 +98,27 @@ def classify_exception(exc: BaseException) -> ErrorCode:
     name = type(exc).__name__
     msg = str(exc).lower()
 
-    if name in ("SourceError",) or "not an existing file" in msg or "unsupported image source" in msg:
+    if (
+        name in ("SourceError",)
+        or "not an existing file" in msg
+        or "unsupported image source" in msg
+    ):
         return ErrorCode.BAD_INPUT
     if name in ("FileNotFoundError", "IsADirectoryError"):
         return ErrorCode.BAD_INPUT
     if "unsupported" in msg and ("mime" in msg or "media" in msg or "format" in msg):
         return ErrorCode.UNSUPPORTED_INPUT
-    if any(k in msg for k in ("unauthorized", "invalid api key", "invalid key", "401", "forbidden", "authentication")):
+    if any(
+        k in msg
+        for k in (
+            "unauthorized",
+            "invalid api key",
+            "invalid key",
+            "401",
+            "forbidden",
+            "authentication",
+        )
+    ):
         return ErrorCode.AUTH
     if any(k in msg for k in ("quota", "exceeded", "insufficient", "billing", "payment")):
         return ErrorCode.QUOTA

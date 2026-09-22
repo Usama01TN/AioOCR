@@ -1,17 +1,24 @@
 """Core routing engine: resolve route, order candidates, execute attempts."""
+
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Any, Callable, Awaitable
+from typing import Any
 
-from ocrroute.errors import ErrorCode, OcrRouteError, classify_exception, FAIL_FAST, CREDENTIAL_ROTATE
+from ocrroute.errors import (
+    CREDENTIAL_ROTATE,
+    FAIL_FAST,
+    ErrorCode,
+    OcrRouteError,
+    classify_exception,
+)
 from ocrroute.logutil import get_logger, redact_secrets
 from ocrroute.routing.candidates import build_candidates
 from ocrroute.routing.cost import estimate_cost_cents
 from ocrroute.routing.explain import ExplainLog
 from ocrroute.routing.strategies import get_strategy
-from ocrroute.routing.breaker import record_failure, record_success
 
 log = get_logger(__name__)
 
@@ -125,9 +132,11 @@ class Router:
                 explain.add("deadline exceeded")
                 break
 
-            creds = (credentials_for(cand["provider_id"]) if credentials_for else None) or cand.get(
-                "credentials"
-            ) or [{"id": None, "secret": cand.get("api") or ""}]
+            creds = (
+                (credentials_for(cand["provider_id"]) if credentials_for else None)
+                or cand.get("credentials")
+                or [{"id": None, "secret": cand.get("api") or ""}]
+            )
             # Filter exhausted
             now_iso = _utcnow_iso()
             usable = [
@@ -163,7 +172,11 @@ class Router:
                     stats = _result_stats(result)
                     if result.get("FileParseExitCode", 1) == -1:
                         err_msg = redact_secrets(
-                            str(result.get("ErrorMessage") or result.get("ErrorDetails") or "engine error")
+                            str(
+                                result.get("ErrorMessage")
+                                or result.get("ErrorDetails")
+                                or "engine error"
+                            )
                         )
                         # Build a fake exception for classification
                         code = classify_exception(Exception(err_msg))
@@ -225,7 +238,7 @@ class Router:
                     }
                     if code in FAIL_FAST:
                         attempts.append(attempt_meta)
-                        raise OcrRouteError(err_msg, code=code)
+                        raise OcrRouteError(err_msg, code=code) from exc
                     if code in CREDENTIAL_ROTATE and ci + 1 < len(usable):
                         explain.add(f"credential rotate on {cand.get('engine_id')} ({code.value})")
                         continue
@@ -260,7 +273,11 @@ class Router:
                 explain.add(f"kept fallback best from {cand.get('engine_id')}")
 
         # All candidates exhausted
-        if best is not None and _result_stats(best)["exit_code"] != -1 and _result_stats(best)["chars"] > 0:
+        if (
+            best is not None
+            and _result_stats(best)["exit_code"] != -1
+            and _result_stats(best)["chars"] > 0
+        ):
             stats = _result_stats(best)
             explain.add("returning degraded best result")
             return {
@@ -336,9 +353,9 @@ class Router:
                         "order": order_idx,
                         "engine": cand.get("engine_id"),
                         "provider": cand.get("label") or cand.get("provider_id"),
-                        "status": "succeeded"
-                        if result.get("FileParseExitCode", 1) != -1
-                        else "failed",
+                        "status": (
+                            "succeeded" if result.get("FileParseExitCode", 1) != -1 else "failed"
+                        ),
                         "duration_ms": duration,
                         "chars": _result_stats(result)["chars"],
                     }
@@ -356,6 +373,7 @@ class Router:
                     }
                 )
                 results.append(None)
+                qualities.append(float(cand.get("quality_score") or 0.5))
 
         good = [r for r in results if r]
         if not good:
@@ -380,7 +398,7 @@ class Router:
 
         consensus, votes = reconcile(
             [r for r in results if r is not None],
-            quality_scores=[q for r, q in zip(results, qualities) if r is not None],
+            quality_scores=[q for r, q in zip(results, qualities, strict=True) if r is not None],
         )
         stats = _result_stats(consensus)
         return {

@@ -1,4 +1,5 @@
 """Export writers for artifact kinds."""
+
 from __future__ import annotations
 
 import csv
@@ -78,7 +79,9 @@ def export_hocr(result: dict[str, Any], page_width: int = 0, page_height: int = 
         bottom = int(max(w["Top"] + w["Height"] for w in words))
         word_parts = []
         for wi, w in enumerate(words):
-            bbox = f"{int(w['Left'])} {int(w['Top'])} {int(w['Left']+w['Width'])} {int(w['Top']+w['Height'])}"
+            x0, y0 = int(w["Left"]), int(w["Top"])
+            x1, y1 = int(w["Left"] + w["Width"]), int(w["Top"] + w["Height"])
+            bbox = f"{x0} {y0} {x1} {y1}"
             word_parts.append(
                 f'<span class="ocrx_word" id="word_{li}_{wi}" title="bbox {bbox}">'
                 f"{escape(str(w.get('WordText', '')))}</span>"
@@ -123,11 +126,11 @@ def export_alto(result: dict[str, Any], page_width: int = 0, page_height: int = 
         top = int(min(w["Top"] for w in words))
         width = int(max(w["Left"] + w["Width"] for w in words) - left)
         height = int(max(w["Top"] + w["Height"] for w in words) - top)
-        blocks.append(
-            f'<TextLine ID="line_{li}" HPOS="{left}" VPOS="{top}" WIDTH="{width}" HEIGHT="{height}">'
-            + "".join(strings)
-            + "</TextLine>"
+        open_tag = (
+            f'<TextLine ID="line_{li}" HPOS="{left}" VPOS="{top}"'
+            f' WIDTH="{width}" HEIGHT="{height}">'
         )
+        blocks.append(open_tag + "".join(strings) + "</TextLine>")
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <alto xmlns="http://www.loc.gov/standards/alto/ns-v3#">
   <Layout>
@@ -150,23 +153,32 @@ def export_docx(result: dict[str, Any]) -> bytes:
 
     text = ((result or {}).get("ParsedText") or "").replace("\r\n", "\n")
     paragraphs = "".join(
-        f"<w:p><w:r><w:t xml:space=\"preserve\">{escape(line)}</w:t></w:r></w:p>"
+        f'<w:p><w:r><w:t xml:space="preserve">{escape(line)}</w:t></w:r></w:p>'
         for line in text.split("\n")
     )
     document_xml = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   <w:body>{paragraphs}<w:sectPr/></w:body>
 </w:document>"""
-    content_types = """<?xml version="1.0" encoding="UTF-8"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>"""
-    rels = """<?xml version="1.0" encoding="UTF-8"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>"""
+    content_types = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n'
+        '  <Default Extension="rels"'
+        ' ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n'
+        '  <Default Extension="xml" ContentType="application/xml"/>\n'
+        '  <Override PartName="/word/document.xml"'
+        ' ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.'
+        'document.main+xml"/>\n'
+        "</Types>"
+    )
+    rels = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n'
+        '  <Relationship Id="rId1"'
+        ' Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/'
+        'officeDocument" Target="word/document.xml"/>\n'
+        "</Relationships>"
+    )
     bio = io.BytesIO()
     with zipfile.ZipFile(bio, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("[Content_Types].xml", content_types)

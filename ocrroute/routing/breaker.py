@@ -1,4 +1,5 @@
 """Circuit breaker for providers."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone

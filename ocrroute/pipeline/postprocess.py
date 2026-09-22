@@ -1,4 +1,5 @@
 """Post-processing and reserved tools hook."""
+
 from __future__ import annotations
 
 import re
@@ -38,11 +39,13 @@ def filter_low_confidence_words(result: dict[str, Any], min_conf: float) -> dict
     result["TextOverlay"] = dict(overlay)
     result["TextOverlay"]["Lines"] = new_lines
     result["TextOverlay"]["Message"] = f"Total lines: {len(new_lines)}"
-    result["ParsedText"] = "\r\n".join(l["LineText"] for l in new_lines)
+    result["ParsedText"] = "\r\n".join(line["LineText"] for line in new_lines)
     return result
 
 
-def apply_postprocess(result: dict[str, Any], options: dict[str, Any] | None = None) -> dict[str, Any]:
+def apply_postprocess(
+    result: dict[str, Any], options: dict[str, Any] | None = None
+) -> dict[str, Any]:
     options = options or {}
     if options.get("normalize_whitespace", True) and result.get("ParsedText"):
         result = dict(result)

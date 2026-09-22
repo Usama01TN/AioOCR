@@ -1,11 +1,11 @@
 """Fernet secret encryption for credentials at rest."""
+
 from __future__ import annotations
 
 import base64
 import hashlib
 import os
 import secrets
-from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
 

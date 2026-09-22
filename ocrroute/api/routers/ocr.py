@@ -1,9 +1,10 @@
 """OCR endpoints."""
+
 from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ocrroute.api.deps import db_session, ocr_service
@@ -11,17 +12,15 @@ from ocrroute.api.schemas.common import BatchRequest, OcrRequest
 from ocrroute.api.security import AuthContext, require_scope
 from ocrroute.crypto import new_ulid
 from ocrroute.db.models import Job, JobItem
-from ocrroute.errors import ErrorCode, OcrRouteError, http_status_for
+from ocrroute.errors import ErrorCode, OcrRouteError
 from ocrroute.runtime.service import OcrService
 
 router = APIRouter(tags=["ocr"])
 
 
 def _raise_from_envelope(env: dict[str, Any]) -> None:
-    if env.get("status") == "failed" and env.get("error_code"):
-        code = env["error_code"]
-        # Still return body; caller uses JSONResponse with status
-        pass
+    # Still return body; caller uses JSONResponse with status
+    _ = env
 
 
 @router.post("/ocr")
@@ -38,7 +37,6 @@ async def ocr_sync(
     content_type = request.headers.get("content-type", "")
     body: dict[str, Any] = {}
     raw_bytes = None
-    filename = None
 
     if "multipart/form-data" in content_type:
         form = await request.form()
@@ -57,7 +55,6 @@ async def ocr_sync(
         up = form.get("file")
         if up is not None and hasattr(up, "read"):
             raw_bytes = await up.read()  # type: ignore[misc]
-            filename = getattr(up, "filename", None)
     else:
         try:
             body = await request.json()
@@ -87,7 +84,9 @@ async def ocr_sync(
             options=req.options,
             preprocess=req.preprocess.model_dump() if req.preprocess else None,
             output=req.output,
-            stop_condition=req.stop_condition.model_dump(exclude_none=True) if req.stop_condition else None,
+            stop_condition=(
+                req.stop_condition.model_dump(exclude_none=True) if req.stop_condition else None
+            ),
             cache=req.cache,
             metadata=req.metadata,
             api_key_id=auth.key_id,
@@ -117,7 +116,6 @@ async def ocr_async(
         body = await request.json()
     except Exception:
         body = {}
-    run_id = new_ulid()
     job = Job(
         id=new_ulid(),
         name="async-ocr",
@@ -126,14 +124,19 @@ async def ocr_async(
         options=body,
     )
     session.add(job)
-    item = JobItem(job_id=job.id, source=body.get("url") or body.get("path") or "inline", status="queued", order_index=0)
+    item = JobItem(
+        job_id=job.id,
+        source=body.get("url") or body.get("path") or "inline",
+        status="queued",
+        order_index=0,
+    )
     session.add(item)
     await session.flush()
 
     # Fire and forget processing
+    from ocrroute.db.session import get_session_factory
     from ocrroute.runtime.jobs import get_job_runner
     from ocrroute.runtime.service import OcrService
-    from ocrroute.db.session import get_session_factory
 
     async def _run() -> None:
         factory = get_session_factory()
@@ -159,9 +162,13 @@ async def ocr_async(
                 if j:
                     j.done = 1
                     j.status = "succeeded"
-                    j.finished_at = env.get("run_id") and __import__("datetime").datetime.now(
-                        __import__("datetime").timezone.utc
-                    ).replace(microsecond=0).isoformat()
+                    j.finished_at = (
+                        env.get("run_id")
+                        and __import__("datetime")
+                        .datetime.now(__import__("datetime").timezone.utc)
+                        .replace(microsecond=0)
+                        .isoformat()
+                    )
                 await s.commit()
             except Exception as exc:
                 item_row = await s.get(JobItem, item.id)
@@ -189,7 +196,12 @@ async def batch_create(
         name=body.name,
         status="queued",
         total=len(body.items),
-        options={"route": body.route, "engine": body.engine, "options": body.options, "output": body.output},
+        options={
+            "route": body.route,
+            "engine": body.engine,
+            "options": body.options,
+            "output": body.output,
+        },
         webhook_url=body.webhook_url,
     )
     session.add(job)
@@ -198,11 +210,12 @@ async def batch_create(
         session.add(JobItem(job_id=job.id, source=str(src), status="queued", order_index=i))
     await session.flush()
 
+    from datetime import datetime, timezone
+
+    from ocrroute.db.session import get_session_factory
     from ocrroute.runtime.jobs import get_job_runner
     from ocrroute.runtime.service import OcrService
     from ocrroute.runtime.webhooks import deliver_webhook
-    from ocrroute.db.session import get_session_factory
-    from datetime import datetime, timezone
 
     async def _run_batch() -> None:
         factory = get_session_factory()
@@ -213,10 +226,17 @@ async def batch_create(
             j.status = "running"
             await s.commit()
             items = (
-                await s.execute(
-                    __import__("sqlalchemy", fromlist=["select"]).select(JobItem).where(JobItem.job_id == job.id).order_by(JobItem.order_index)
+                (
+                    await s.execute(
+                        __import__("sqlalchemy", fromlist=["select"])
+                        .select(JobItem)
+                        .where(JobItem.job_id == job.id)
+                        .order_by(JobItem.order_index)
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             svc = OcrService()
             done = failed = 0
             for it in items:

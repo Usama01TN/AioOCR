@@ -1,10 +1,10 @@
 """OcrRoute CLI — Typer + Rich."""
+
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import typer
 from rich.console import Console
@@ -89,7 +89,7 @@ def serve(
                 f"[red]Port {port} is busy.[/red] Choose another with --port "
                 f"(never use 20128). OcrRoute default is 20256."
             )
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
 
     from ocrroute.config import get_settings
 
@@ -119,7 +119,7 @@ def setup() -> None:
     from sqlalchemy import select
 
     from ocrroute.config import get_settings
-    from ocrroute.crypto import SecretBox, generate_api_key, new_ulid
+    from ocrroute.crypto import generate_api_key, new_ulid
     from ocrroute.db.models import ApiKey, Engine, Provider, Route, RouteMember, User
     from ocrroute.db.session import get_session_factory, init_db
     from ocrroute.runtime.service import OcrService
@@ -148,8 +148,14 @@ def setup() -> None:
             eng = await session.get(Engine, "Tesseract")
             if eng and eng.available:
                 provs = (
-                    await session.execute(select(Provider).where(Provider.engine_id == "Tesseract"))
-                ).scalars().all()
+                    (
+                        await session.execute(
+                            select(Provider).where(Provider.engine_id == "Tesseract")
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
                 if not provs:
                     p = Provider(
                         id=new_ulid(),
@@ -254,7 +260,7 @@ def doctor(
 
 @engines_app.command("list")
 def engines_list(
-    kind: Optional[str] = typer.Option(None, "--kind"),
+    kind: str | None = typer.Option(None, "--kind"),
     available: bool = typer.Option(False, "--available"),
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -280,7 +286,9 @@ def engines_refresh() -> None:
 
 
 @engines_app.command("options")
-def engines_options(engine: str = typer.Argument(...), json_out: bool = typer.Option(False, "--json")) -> None:
+def engines_options(
+    engine: str = typer.Argument(...), json_out: bool = typer.Option(False, "--json")
+) -> None:
     from ocrroute.catalog.registry import get_registry
 
     info = get_registry().get(engine)
@@ -293,12 +301,12 @@ def engines_options(engine: str = typer.Argument(...), json_out: bool = typer.Op
 @app.command()
 def ocr(
     source: str = typer.Argument(..., help="File path or URL"),
-    route: Optional[str] = typer.Option(None, "--route"),
-    engine: Optional[str] = typer.Option(None, "--engine"),
-    lang: Optional[str] = typer.Option(None, "--lang"),
-    pages: Optional[str] = typer.Option(None, "--pages"),
+    route: str | None = typer.Option(None, "--route"),
+    engine: str | None = typer.Option(None, "--engine"),
+    lang: str | None = typer.Option(None, "--lang"),
+    pages: str | None = typer.Option(None, "--pages"),
     out: str = typer.Option("text", "--out"),
-    output_dir: Optional[Path] = typer.Option(None, "--output-dir"),
+    output_dir: Path | None = typer.Option(None, "--output-dir"),
     json_out: bool = typer.Option(False, "--json"),
 ) -> None:
     """Run OCR on a file or URL (zero-config friendly)."""
@@ -350,7 +358,7 @@ def ocr(
 @app.command()
 def batch(
     path: str = typer.Argument(...),
-    route: Optional[str] = None,
+    route: str | None = None,
     concurrency: int = 4,
     recursive: bool = False,
     out: str = "text",
@@ -364,7 +372,16 @@ def batch(
     if p.is_dir():
         pattern = "**/*" if recursive else "*"
         for f in p.glob(pattern):
-            if f.suffix.lower() in {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".pdf", ".webp"}:
+            if f.suffix.lower() in {
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".tif",
+                ".tiff",
+                ".bmp",
+                ".pdf",
+                ".webp",
+            }:
                 paths.append(str(f))
     else:
         paths = _glob(path)
@@ -383,7 +400,9 @@ def batch(
             for f in paths:
                 try:
                     env = await svc.run_ocr(session, path=f, route=route, output=[out])
-                    console.print(f"[green]ok[/green] {f} chars={env.get('usage',{}).get('chars')}")
+                    console.print(
+                        f"[green]ok[/green] {f} chars={env.get('usage', {}).get('chars')}"
+                    )
                 except Exception as exc:
                     console.print(f"[red]fail[/red] {f}: {exc}")
             await session.commit()
@@ -442,7 +461,13 @@ def key_list(json_out: bool = typer.Option(False, "--json")) -> None:
         async with factory() as session:
             rows = (await session.execute(select(ApiKey))).scalars().all()
             return [
-                {"id": k.id, "name": k.name, "prefix": k.key_prefix, "enabled": k.enabled, "scopes": k.scopes}
+                {
+                    "id": k.id,
+                    "name": k.name,
+                    "prefix": k.key_prefix,
+                    "enabled": k.enabled,
+                    "scopes": k.scopes,
+                }
                 for k in rows
             ]
 
@@ -555,7 +580,9 @@ def db_integrity() -> None:
 
 
 @config_app.command("get")
-def config_get(key: Optional[str] = typer.Argument(None), json_out: bool = typer.Option(False, "--json")) -> None:
+def config_get(
+    key: str | None = typer.Argument(None), json_out: bool = typer.Option(False, "--json")
+) -> None:
     from ocrroute.config import get_settings
 
     s = get_settings().model_dump_public()
@@ -588,10 +615,18 @@ def runs_list(limit: int = 20, json_out: bool = typer.Option(False, "--json")) -
         factory = get_session_factory()
         async with factory() as session:
             rows = (
-                await session.execute(select(Run).order_by(Run.created_at.desc()).limit(limit))
-            ).scalars().all()
+                (await session.execute(select(Run).order_by(Run.created_at.desc()).limit(limit)))
+                .scalars()
+                .all()
+            )
             return [
-                {"id": r.id, "status": r.status, "engine": r.requested_engine, "chars": r.chars, "ms": r.duration_ms}
+                {
+                    "id": r.id,
+                    "status": r.status,
+                    "engine": r.requested_engine,
+                    "chars": r.chars,
+                    "ms": r.duration_ms,
+                }
                 for r in rows
             ]
 
@@ -601,7 +636,9 @@ def runs_list(limit: int = 20, json_out: bool = typer.Option(False, "--json")) -
     else:
         table = Table("ID", "Status", "Engine", "Chars", "ms")
         for r in data:
-            table.add_row(r["id"][:12], r["status"], str(r["engine"]), str(r["chars"]), str(r["ms"]))
+            table.add_row(
+                r["id"][:12], r["status"], str(r["engine"]), str(r["chars"]), str(r["ms"])
+            )
         console.print(table)
 
 
@@ -640,7 +677,7 @@ def desktop() -> None:
         from ocrroute.desktop.app import main as desktop_main
     except ImportError as exc:
         console.print(f"[red]Desktop requires PyQt5[/red]: pip install ocrroute[desktop] ({exc})")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     desktop_main()
 
 
@@ -660,7 +697,10 @@ def provider_list(json_out: bool = typer.Option(False, "--json")) -> None:
         factory = get_session_factory()
         async with factory() as session:
             rows = (await session.execute(select(Provider))).scalars().all()
-            return [{"id": p.id, "label": p.label, "engine": p.engine_id, "enabled": p.enabled} for p in rows]
+            return [
+                {"id": p.id, "label": p.label, "engine": p.engine_id, "enabled": p.enabled}
+                for p in rows
+            ]
 
     data = asyncio.run(_run())
     if json_out:

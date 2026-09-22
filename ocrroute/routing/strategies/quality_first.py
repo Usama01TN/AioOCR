@@ -1,7 +1,9 @@
 """Descending curated accuracy score."""
+
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from ocrroute.routing.strategies.base import Strategy, register
 

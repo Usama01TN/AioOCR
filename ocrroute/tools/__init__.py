@@ -1,4 +1,5 @@
 """Reserved tools subsystem."""
+
 from __future__ import annotations
 
 from ocrroute.tools.base import ToolPlugin

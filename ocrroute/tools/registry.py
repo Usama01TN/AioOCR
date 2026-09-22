@@ -1,4 +1,5 @@
 """Tool auto-discovery — scans builtin/ and returns [] today."""
+
 from __future__ import annotations
 
 import importlib

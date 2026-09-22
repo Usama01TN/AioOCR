@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import QSettings, Qt
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from ocrroute.i18n import get_locale, translate

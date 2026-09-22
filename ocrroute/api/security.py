@@ -1,8 +1,8 @@
 """API key auth and scope checks."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
 
 from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy import select
@@ -48,7 +48,10 @@ class AuthContext:
         if scope not in self.scopes:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail={"error_code": ErrorCode.FORBIDDEN.value, "error_message": f"Missing scope: {scope}"},
+                detail={
+                    "error_code": ErrorCode.FORBIDDEN.value,
+                    "error_message": f"Missing scope: {scope}",
+                },
             )
 
 
@@ -93,7 +96,10 @@ async def get_auth(
                 if exp < datetime.now(timezone.utc):
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail={"error_code": ErrorCode.AUTH.value, "error_message": "API key expired"},
+                        detail={
+                            "error_code": ErrorCode.AUTH.value,
+                            "error_message": "API key expired",
+                        },
                     )
             except ValueError:
                 pass

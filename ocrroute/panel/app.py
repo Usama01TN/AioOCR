@@ -1,10 +1,10 @@
 """Jinja2 + HTMX control panel with i18n and theme support."""
+
 from __future__ import annotations
 
 import secrets
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlencode
 
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -150,21 +150,31 @@ def create_panel_app(settings: Settings) -> FastAPI:
         stats = {"runs": 0, "succeeded": 0, "failed": 0, "engines": 0, "providers": 0}
         recent: list[Any] = []
         async with factory() as session:
-            stats["runs"] = (await session.execute(select(func.count()).select_from(Run))).scalar() or 0
+            stats["runs"] = (
+                await session.execute(select(func.count()).select_from(Run))
+            ).scalar() or 0
             stats["succeeded"] = (
                 await session.execute(
-                    select(func.count()).select_from(Run).where(Run.status.in_(("succeeded", "cached")))
+                    select(func.count())
+                    .select_from(Run)
+                    .where(Run.status.in_(("succeeded", "cached")))
                 )
             ).scalar() or 0
             stats["failed"] = (
-                await session.execute(select(func.count()).select_from(Run).where(Run.status == "failed"))
+                await session.execute(
+                    select(func.count()).select_from(Run).where(Run.status == "failed")
+                )
             ).scalar() or 0
-            stats["engines"] = (await session.execute(select(func.count()).select_from(Engine))).scalar() or 0
+            stats["engines"] = (
+                await session.execute(select(func.count()).select_from(Engine))
+            ).scalar() or 0
             stats["providers"] = (
                 await session.execute(select(func.count()).select_from(Provider))
             ).scalar() or 0
             recent = list(
-                (await session.execute(select(Run).order_by(Run.created_at.desc()).limit(20))).scalars().all()
+                (await session.execute(select(Run).order_by(Run.created_at.desc()).limit(20)))
+                .scalars()
+                .all()
             )
         return _html(
             request,
@@ -230,7 +240,9 @@ def create_panel_app(settings: Settings) -> FastAPI:
         factory = get_session_factory()
         async with factory() as session:
             runs = list(
-                (await session.execute(select(Run).order_by(Run.created_at.desc()).limit(100))).scalars().all()
+                (await session.execute(select(Run).order_by(Run.created_at.desc()).limit(100)))
+                .scalars()
+                .all()
             )
         return _html(request, "runs.html", title_key="runs.title", nav_active="runs", runs=runs)
 
@@ -284,7 +296,13 @@ def create_panel_app(settings: Settings) -> FastAPI:
     @app.get("/login", response_class=HTMLResponse)
     async def login_page(request: Request) -> HTMLResponse:
         err = request.query_params.get("error")
-        return _html(request, "login.html", title_key="login.title", nav_active="login", login_error=bool(err))
+        return _html(
+            request,
+            "login.html",
+            title_key="login.title",
+            nav_active="login",
+            login_error=bool(err),
+        )
 
     @app.post("/login")
     async def login_submit(
@@ -298,7 +316,9 @@ def create_panel_app(settings: Settings) -> FastAPI:
                 await session.execute(select(User).where(User.username == username))
             ).scalar_one_or_none()
             if user is None:
-                count = (await session.execute(select(func.count()).select_from(User))).scalar() or 0
+                count = (
+                    await session.execute(select(func.count()).select_from(User))
+                ).scalar() or 0
                 if count == 0:
                     from argon2 import PasswordHasher
 
@@ -351,7 +371,9 @@ def create_panel_app(settings: Settings) -> FastAPI:
             nxt = "/panel/"
         resp = RedirectResponse(nxt, status_code=303)
         if locale:
-            resp.set_cookie("ocrroute_lang", get_locale(locale), max_age=365 * 24 * 3600, samesite="lax")
+            resp.set_cookie(
+                "ocrroute_lang", get_locale(locale), max_age=365 * 24 * 3600, samesite="lax"
+            )
         if theme in ("light", "dark", "system"):
             resp.set_cookie("ocrroute_theme", theme, max_age=365 * 24 * 3600, samesite="lax")
         return resp

@@ -1,4 +1,5 @@
 """Translation catalogues for the control panel and desktop UI."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -617,7 +618,10 @@ _STRINGS: dict[str, dict[str, str]] = {
         "zh": "工具",
     },
     "tools.empty": {
-        "en": "No tools are installed. This section is reserved for future post-processing extensions.",
+        "en": (
+            "No tools are installed. This section is reserved for future "
+            "post-processing extensions."
+        ),
         "ar": "لا أدوات مثبّتة. هذا القسم محجوز لإضافات ما بعد المعالجة مستقبلاً.",
         "fr": "Aucun outil installé. Section réservée aux extensions futures.",
         "de": "Keine Werkzeuge installiert. Reserviert für künftige Nachverarbeitung.",

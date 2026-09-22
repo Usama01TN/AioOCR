@@ -1,4 +1,5 @@
 """Providers & credentials CRUD."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -29,8 +30,10 @@ async def list_providers(
     auth: AuthContext = Depends(require_scope("ocr:read")),
 ) -> dict[str, Any]:
     rows = (
-        await session.execute(select(Provider).options(selectinload(Provider.credentials)))
-    ).scalars().all()
+        (await session.execute(select(Provider).options(selectinload(Provider.credentials))))
+        .scalars()
+        .all()
+    )
     box = SecretBox()
     return {
         "providers": [

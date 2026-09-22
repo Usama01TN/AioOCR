@@ -1,13 +1,12 @@
 """High-level OCR service orchestrating pipeline + routing + persistence."""
+
 from __future__ import annotations
 
 import hashlib
 from datetime import datetime, timezone
-from functools import partial
-from pathlib import Path
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -15,8 +14,8 @@ from ocrroute.catalog.registry import get_registry
 from ocrroute.config import Settings, get_settings
 from ocrroute.crypto import SecretBox, new_ulid
 from ocrroute.db.models import (
-    Attempt,
     Artifact,
+    Attempt,
     Credential,
     Engine,
     Provider,
@@ -26,11 +25,11 @@ from ocrroute.db.models import (
 )
 from ocrroute.errors import ErrorCode, OcrRouteError
 from ocrroute.logutil import get_logger, redact_secrets
+from ocrroute.pipeline.export import write_artifact
 from ocrroute.pipeline.input import InputDocument, load_input
 from ocrroute.pipeline.postprocess import apply_postprocess, apply_tools
 from ocrroute.pipeline.preprocess import preprocess_image
-from ocrroute.pipeline.export import write_artifact
-from ocrroute.routing.router import Router, simulate_route
+from ocrroute.routing.router import Router
 from ocrroute.runtime.cache import cache_get, cache_put, make_cache_key
 from ocrroute.runtime.executor import sync_execute_candidate
 from ocrroute.runtime.limits import get_limits
@@ -174,14 +173,20 @@ class OcrService:
             )
         return members
 
-    async def _credentials_for(self, session: AsyncSession, provider_id: str) -> list[dict[str, Any]]:
+    async def _credentials_for(
+        self, session: AsyncSession, provider_id: str
+    ) -> list[dict[str, Any]]:
         rows = (
-            await session.execute(
-                select(Credential)
-                .where(Credential.provider_id == provider_id, Credential.enabled.is_(True))
-                .order_by(Credential.order_index)
+            (
+                await session.execute(
+                    select(Credential)
+                    .where(Credential.provider_id == provider_id, Credential.enabled.is_(True))
+                    .order_by(Credential.order_index)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         out = []
         for c in rows:
             try:
@@ -224,7 +229,9 @@ class OcrService:
                     "label": engine,
                     "kind": eng.kind if eng else "local",
                     "enabled": True,
-                    "engine_available": bool(eng.available) if eng else get_registry().get(engine) is not None,
+                    "engine_available": (
+                        bool(eng.available) if eng else get_registry().get(engine) is not None
+                    ),
                     "available": True,
                     "order_index": 0,
                     "weight": 1,
@@ -292,10 +299,14 @@ class OcrService:
     async def _auto_members(self, session: AsyncSession) -> list[dict[str, Any]]:
         await self.ensure_engines_synced(session)
         engines = (
-            await session.execute(
-                select(Engine).where(Engine.available == 1, Engine.enabled.is_(True))
+            (
+                await session.execute(
+                    select(Engine).where(Engine.available == 1, Engine.enabled.is_(True))
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         # Prefer local first in member order; strategy auto will refine
         locals_ = [e for e in engines if e.kind == "local"]
         apis = [e for e in engines if e.kind == "api"]
@@ -304,12 +315,16 @@ class OcrService:
         for i, eng in enumerate(ordered):
             # Prefer configured providers
             provs = (
-                await session.execute(
-                    select(Provider).where(
-                        Provider.engine_id == eng.id, Provider.enabled.is_(True)
+                (
+                    await session.execute(
+                        select(Provider).where(
+                            Provider.engine_id == eng.id, Provider.enabled.is_(True)
+                        )
                     )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             if provs:
                 for j, p in enumerate(provs):
                     members.append(
@@ -441,7 +456,9 @@ class OcrService:
         stop = stop_condition or route_stop or {"min_chars": 1}
 
         # Cache
-        use_cache = cache and settings.cache_enabled and not no_cache_header and not settings.privacy_mode
+        use_cache = (
+            cache and settings.cache_enabled and not no_cache_header and not settings.privacy_mode
+        )
         cache_target = engine or route or "auto"
         cache_key = make_cache_key(
             doc.sha256,
@@ -488,9 +505,7 @@ class OcrService:
         if settings.privacy_mode:
             allow = {x.strip() for x in settings.privacy_api_allowlist.split(",") if x.strip()}
             members = [
-                m
-                for m in members
-                if m.get("kind") == "local" or m.get("engine_id") in allow
+                m for m in members if m.get("kind") == "local" or m.get("engine_id") in allow
             ]
 
         # Preprocess pages
@@ -502,7 +517,9 @@ class OcrService:
         ctx = {
             "mime": doc.mime,
             "page_count": doc.page_count,
-            "languages": language if isinstance(language, list) else ([language] if language else []),
+            "languages": (
+                language if isinstance(language, list) else ([language] if language else [])
+            ),
             "dimensions": (doc.width or 0, doc.height or 0),
             "handwriting": bool((options or {}).get("handwriting")),
             "tables": bool((options or {}).get("isTable") or (options or {}).get("tables")),
@@ -517,7 +534,9 @@ class OcrService:
         else:
             image_for_engine = page_bytes  # engines that support pages list
 
-        def execute_fn(cand: dict[str, Any], secrets: list[str], cred: dict[str, Any]) -> dict[str, Any]:
+        def execute_fn(
+            cand: dict[str, Any], secrets: list[str], cred: dict[str, Any]
+        ) -> dict[str, Any]:
             # For multi-page, run per page and stitch if engine gets bytes
             if isinstance(image_for_engine, list) and len(image_for_engine) > 1:
                 from ocrroute.engines.ocrplugin import OCRPlugin
@@ -546,8 +565,9 @@ class OcrService:
                         texts.append(line.get("LineText") or "")
                     # Approximate page height offset
                     try:
-                        from PIL import Image
                         from io import BytesIO
+
+                        from PIL import Image
 
                         h = Image.open(BytesIO(pb)).size[1]
                     except Exception:
@@ -560,7 +580,11 @@ class OcrService:
                 cand,
                 secrets,
                 cred,
-                image=image_for_engine if not isinstance(image_for_engine, list) else image_for_engine[0],
+                image=(
+                    image_for_engine
+                    if not isinstance(image_for_engine, list)
+                    else image_for_engine[0]
+                ),
                 language=language,
                 prompt=prompt,
                 extra_options=options,
@@ -643,13 +667,22 @@ class OcrService:
                 routing={
                     "route": route or "auto",
                     "strategy": strategy,
-                    "attempt_count": 1 if exc.code in (ErrorCode.BAD_INPUT, ErrorCode.UNSUPPORTED_INPUT) else 0,
+                    "attempt_count": (
+                        1 if exc.code in (ErrorCode.BAD_INPUT, ErrorCode.UNSUPPORTED_INPUT) else 0
+                    ),
                     "degraded": False,
                     "explain": (exc.details or {}).get("explain") or [],
                     "attempts": [],
                     "warnings": [],
                 },
-                usage={"pages": doc.page_count, "chars": 0, "lines": 0, "words": 0, "duration_ms": 0, "cost_cents": 0},
+                usage={
+                    "pages": doc.page_count,
+                    "chars": 0,
+                    "lines": 0,
+                    "words": 0,
+                    "duration_ms": 0,
+                    "cost_cents": 0,
+                },
                 metadata=metadata,
                 error_code=exc.code.value,
                 error_message=exc.message,

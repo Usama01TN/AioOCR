@@ -1,4 +1,5 @@
 """Runs CRUD."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -12,7 +13,7 @@ from sqlalchemy.orm import selectinload
 
 from ocrroute.api.deps import db_session, ocr_service
 from ocrroute.api.security import AuthContext, require_scope
-from ocrroute.db.models import Artifact, Attempt, Run
+from ocrroute.db.models import Artifact, Run
 from ocrroute.errors import ErrorCode
 from ocrroute.runtime.service import OcrService, build_envelope
 
@@ -70,7 +71,9 @@ async def get_run(
         )
     ).scalar_one_or_none()
     if not run:
-        raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"})
+        raise HTTPException(
+            404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"}
+        )
     arts = [{"kind": a.kind, "url": f"/v1/runs/{run_id}/artifacts/{a.kind}"} for a in run.artifacts]
     return build_envelope(
         run_id=run.id,
@@ -107,11 +110,16 @@ async def get_artifact(
         )
     ).scalar_one_or_none()
     if not art:
-        raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Artifact not found"})
+        raise HTTPException(
+            404,
+            detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Artifact not found"},
+        )
     path = Path(art.path).resolve()
     # Sandbox: must stay under artifacts root — checked loosely
     if not path.is_file():
-        raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "File missing"})
+        raise HTTPException(
+            404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "File missing"}
+        )
     return FileResponse(path)
 
 
@@ -128,7 +136,9 @@ async def overlay_png(
     ).scalar_one_or_none()
     if art and Path(art.path).is_file():
         return FileResponse(art.path, media_type="image/png")
-    raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Overlay not found"})
+    raise HTTPException(
+        404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Overlay not found"}
+    )
 
 
 @router.post("/{run_id}/retry")
@@ -140,7 +150,9 @@ async def retry_run(
 ) -> dict[str, Any]:
     run = await session.get(Run, run_id)
     if not run:
-        raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"})
+        raise HTTPException(
+            404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"}
+        )
     # Re-run using stored metadata only when input was a URL; otherwise fail
     meta = run.metadata_json or {}
     return await service.run_ocr(
@@ -162,11 +174,15 @@ async def delete_run(
 ) -> dict[str, str]:
     run = (
         await session.execute(
-            select(Run).where(Run.id == run_id).options(selectinload(Run.artifacts), selectinload(Run.attempts))
+            select(Run)
+            .where(Run.id == run_id)
+            .options(selectinload(Run.artifacts), selectinload(Run.attempts))
         )
     ).scalar_one_or_none()
     if not run:
-        raise HTTPException(404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"})
+        raise HTTPException(
+            404, detail={"error_code": ErrorCode.NOT_FOUND.value, "error_message": "Run not found"}
+        )
     for a in run.artifacts:
         try:
             Path(a.path).unlink(missing_ok=True)

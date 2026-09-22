@@ -2,6 +2,7 @@
 
 Factored from the clustering idea in engines/local/tesseract.py.
 """
+
 from __future__ import annotations
 
 from typing import Any

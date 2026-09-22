@@ -1,4 +1,5 @@
 """Candidate list construction for a Route."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone

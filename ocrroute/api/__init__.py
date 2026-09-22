@@ -1,4 +1,5 @@
 """HTTP API package."""
+
 from __future__ import annotations
 
 from ocrroute.api.app import create_app

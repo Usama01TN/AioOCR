@@ -1,4 +1,5 @@
 """SQLAlchemy declarative base and SQLite pragmas."""
+
 from __future__ import annotations
 
 from sqlalchemy.orm import DeclarativeBase

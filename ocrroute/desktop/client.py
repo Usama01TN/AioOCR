@@ -1,4 +1,5 @@
 """HTTP client used by desktop workers (requests in QThread)."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -28,7 +29,9 @@ class ApiClient:
         r.raise_for_status()
         return r.json()
 
-    def ocr_file(self, path: str, engine: str | None = None, route: str | None = None) -> dict[str, Any]:
+    def ocr_file(
+        self, path: str, engine: str | None = None, route: str | None = None
+    ) -> dict[str, Any]:
         data = {}
         if engine:
             data["engine"] = engine

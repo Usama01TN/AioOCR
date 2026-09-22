@@ -1,4 +1,5 @@
 """Background workers — never block the GUI thread."""
+
 from __future__ import annotations
 
 from PyQt5.QtCore import QObject, QRunnable, pyqtSignal, pyqtSlot

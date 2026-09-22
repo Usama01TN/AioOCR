@@ -8,6 +8,8 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
+import ocrroute.db.models  # noqa: F401  (register models before init_db)
+
 # Isolate all test data
 @pytest.fixture(scope="session", autouse=True)
 def _test_home(tmp_path_factory):

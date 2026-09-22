@@ -1,10 +1,12 @@
 """Strategy base class and registry."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
-_REGISTRY: dict[str, type["Strategy"]] = {}
+_REGISTRY: dict[str, type[Strategy]] = {}
 
 
 def register(name: str):

@@ -1,4 +1,5 @@
 """Engine catalogue endpoints."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -91,6 +92,7 @@ async def probe_engine(
 ) -> dict[str, Any]:
     """Run a tiny synthetic image against the engine."""
     from io import BytesIO
+
     from PIL import Image, ImageDraw
 
     img = Image.new("RGB", (200, 60), "white")

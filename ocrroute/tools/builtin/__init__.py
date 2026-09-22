@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Builtin tools package — intentionally empty in v0.1.
 

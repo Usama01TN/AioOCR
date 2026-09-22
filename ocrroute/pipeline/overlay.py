@@ -1,4 +1,5 @@
 """Render word-box overlay PNG."""
+
 from __future__ import annotations
 
 from io import BytesIO

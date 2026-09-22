@@ -1,4 +1,5 @@
 """Optional image preprocessing before engine invocation."""
+
 from __future__ import annotations
 
 from io import BytesIO
@@ -16,12 +17,15 @@ def preprocess_image(
       auto_rotate, grayscale, denoise, contrast, upscale, region [x,y,w,h]
     """
     options = options or {}
-    if not any(options.get(k) for k in ("auto_rotate", "grayscale", "denoise", "contrast", "upscale", "region")):
+    if not any(
+        options.get(k)
+        for k in ("auto_rotate", "grayscale", "denoise", "contrast", "upscale", "region")
+    ):
         return data
 
     try:
-        from PIL import Image, ImageFilter, ImageOps
         import numpy as np
+        from PIL import Image, ImageFilter, ImageOps
     except ImportError:
         return data
 
@@ -34,7 +38,12 @@ def preprocess_image(
         x, y, w, h = options["region"]
         img = img.crop((int(x), int(y), int(x) + int(w), int(y) + int(h)))
 
-    if options.get("grayscale") or options.get("contrast") or options.get("denoise") or options.get("auto_rotate"):
+    if (
+        options.get("grayscale")
+        or options.get("contrast")
+        or options.get("denoise")
+        or options.get("auto_rotate")
+    ):
         gray = img.convert("L")
         if options.get("auto_rotate"):
             arr = np.asarray(gray)
